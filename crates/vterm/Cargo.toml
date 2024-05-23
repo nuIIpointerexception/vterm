@@ -1,0 +1,39 @@
+[package]
+description = "A cross-platform, vulkan based terminal emulator"
+edition = "2021"
+name = "vterm"
+version = "0.0.1"
+publish = false
+license = "GPL-3.0-or-later"
+authors = ["nuii <contact@viable.gg>"]
+
+[[bin]]
+name = "vterm"
+path = "src/main.rs"
+
+[dependencies]
+vui.workspace = true
+vshell.workspace = true
+
+anyhow = "1.0.44"
+flexi_logger = "0.17.1"
+log = "0.4.13"
+ash = { version = "0.35.1", features = ["linked"] }
+aquamarine = "*"
+nalgebra = "*"
+memoffset = "*"
+thiserror = "1.0.29"
+spin_sleep = "1.0.0"
+image = "0.24.0"
+ab_glyph = "*"
+
+[dependencies.glfw]
+version = "0.41.0"
+features = ["vulkan"]
+
+[dev-dependencies]
+colored = "2.0"
+
+[dependencies.textwrap]
+features = ["terminal_size"]
+version = "0.13.2"

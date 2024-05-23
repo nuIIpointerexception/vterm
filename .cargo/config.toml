@@ -1,0 +1,6 @@
+# .cargo/config.toml
+[unstable]
+profile-rustflags = true
+
+[profile.release]
+rustflags = ["-Ccodegen-units=1", "-Zlocation-detail=none"]

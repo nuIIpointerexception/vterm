@@ -1,0 +1,36 @@
+[package]
+name = "vui"
+version = "0.0.1"
+authors = ["nuii <contact@viable.gg>"]
+license = "GPL-3.0-or-later"
+edition = "2021"
+
+[lib]
+name = "vui"
+path = "src/lib.rs"
+
+[dependencies]
+
+cfg-if = "1.0.0"
+anyhow = "1.0.44"
+flexi_logger = "0.17.1"
+log = "0.4.13"
+ash = { version = "0.35.1", features = ["linked"] }
+aquamarine = "*"
+nalgebra = "*"
+memoffset = "*"
+thiserror = "1.0.29"
+spin_sleep = "1.0.0"
+image = "0.24.0"
+ab_glyph = "*"
+
+[dev-dependencies]
+colored = "2.0"
+
+[dependencies.glfw]
+version = "0.41.0"
+features = ["vulkan"]
+
+[dependencies.textwrap]
+features = ["terminal_size"]
+version = "0.13.2"
