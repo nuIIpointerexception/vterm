@@ -1,16 +1,17 @@
-use ash::{extensions::khr, vk};
+use ash::khr::surface;
+use ash::vk;
 
 use crate::errors::WindowSurfaceError;
 
 pub struct WindowSurface {
-    pub loader: khr::Surface,
+    pub loader: surface::Instance,
     pub khr: vk::SurfaceKHR,
 }
 
 impl WindowSurface {
     pub fn new(
         surface_khr: vk::SurfaceKHR,
-        surface_loader: khr::Surface,
+        surface_loader: surface::Instance,
     ) -> Self {
         Self {
             loader: surface_loader,

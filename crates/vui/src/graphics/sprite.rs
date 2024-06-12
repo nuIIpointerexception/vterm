@@ -1,7 +1,7 @@
 use ::anyhow::Result;
 
 use crate::{
-    graphics::{Vertex, VertexStream},
+    graphics::{triangles::Frame, Vertex, VertexStream},
     vec2, Vec2, vec3, vec4,
 };
 
@@ -34,7 +34,7 @@ impl Default for Sprite {
 }
 
 impl Sprite {
-    pub fn draw(&self, vertices: &mut impl VertexStream) -> Result<()> {
+    pub fn draw(&self, vertices: &mut Frame) -> Result<()> {
         let rotation_matrix = nalgebra::Rotation2::new(self.angle_in_radians);
 
         let hw = 0.5 * self.width;

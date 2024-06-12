@@ -23,7 +23,7 @@ impl<I, E> Widget<ComposedMessage<I, E>> for ComposedElement<E> {
         &mut self,
         internal_state: &mut InternalState,
         input: &Input,
-        event: &glfw::WindowEvent,
+        event: &winit::event::WindowEvent,
     ) -> Result<Option<ComposedMessage<I, E>>> {
         self.0
             .handle_event(internal_state, input, event)

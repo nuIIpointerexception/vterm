@@ -33,7 +33,7 @@ impl<Message> Widget<Message> for Label {
         &mut self,
         _internal_state: &mut InternalState,
         _input: &Input,
-        _event: &glfw::WindowEvent,
+        _event: &winit::event::WindowEvent,
     ) -> Result<Option<Message>> {
         Ok(None)
     }

@@ -12,12 +12,12 @@ impl Input {
         }
     }
 
-    pub fn handle_event(&mut self, event: &glfw::WindowEvent) {
-        match *event {
-            glfw::WindowEvent::CursorPos(x, y) => {
-                self.mouse_position = vec2(x as f32, y as f32);
+    pub fn handle_event(&mut self, event: &winit::event::WindowEvent) {
+        match event {
+            winit::event::WindowEvent::CursorMoved { position, .. } => {
+                self.mouse_position = vec2(position.x as f32, position.y as f32);
             }
-            _ => (),
+            _ => {}
         }
     }
 }

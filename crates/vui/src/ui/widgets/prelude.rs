@@ -4,8 +4,8 @@ pub use crate::{
         id::id_hash,
         primitives::{Axis, Justify, SpaceBetween},
         widgets::{
-            Align, Button, Col, Constraint, Container, Element, HAlignment,
-            HSplit, Label, Row, Slider, VAlignment, Widget, Window,
+            Align, Col, Constraint, Container, Element, HAlignment,
+            HSplit, Label, Row, VAlignment, Widget, Window,
             WithContainer,
         },
         Font, Id,
@@ -17,29 +17,6 @@ pub fn align<Message, W>(widget: W) -> Align<Message, W>
         W: Widget<Message>,
 {
     Align::new(widget)
-}
-
-pub fn button<Message, E>(id: Id, contents: E) -> Button<Message>
-    where
-        E: Into<Element<Message>>,
-{
-    Button::new(id, contents)
-}
-
-pub fn text_button<Message>(
-    font: &Font,
-    text: impl AsRef<str>,
-) -> Button<Message>
-    where
-        Message: 'static,
-{
-    let id = gen_id!(text.as_ref());
-    Button::new(
-        id,
-        label(font, text)
-            .container()
-            .padding(font.line_height() * 0.25),
-    )
 }
 
 pub fn label<T>(font: &Font, text: T) -> Label
@@ -59,8 +36,4 @@ pub fn row<Message>() -> Row<Message> {
 
 pub fn hsplit<Message>() -> HSplit<Message> {
     HSplit::new()
-}
-
-pub fn slider<Message>(id: Id, min: f32, max: f32) -> Slider<Message> {
-    Slider::new(id, min, max)
 }

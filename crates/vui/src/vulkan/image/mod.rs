@@ -16,7 +16,7 @@ pub mod view;
 pub struct Image {
     pub raw: vk::Image,
 
-    pub create_info: vk::ImageCreateInfo,
+    pub create_info: vk::ImageCreateInfo<'static>,
 
     pub allocation: Allocation,
 
@@ -29,7 +29,7 @@ impl Image {
     pub fn new(
         vk_dev: Arc<RenderDevice>,
         vk_alloc: Arc<dyn MemoryAllocator>,
-        create_info: &vk::ImageCreateInfo,
+        create_info: &vk::ImageCreateInfo<'static>,
         memory_property_flags: vk::MemoryPropertyFlags,
     ) -> Result<Self, ImageError> {
         let raw = unsafe {

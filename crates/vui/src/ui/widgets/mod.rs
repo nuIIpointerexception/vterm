@@ -8,7 +8,6 @@ use crate::{
 
 pub use self::{
     align::{Align, HAlignment, VAlignment},
-    button::Button,
     col::Col,
     composite::{ComposedElement, ComposedMessage, Composite, CompositeWidget},
     container::{Constraint, Container, WithContainer},
@@ -16,12 +15,10 @@ pub use self::{
     hsplit::HSplit,
     label::Label,
     row::Row,
-    slider::Slider,
     window::Window,
 };
 
 mod align;
-mod button;
 mod col;
 mod composite;
 mod container;
@@ -29,7 +26,6 @@ mod element;
 mod hsplit;
 mod label;
 mod row;
-mod slider;
 mod window;
 
 pub mod prelude;
@@ -39,7 +35,7 @@ pub trait Widget<Message> {
         &mut self,
         internal_state: &mut InternalState,
         input: &Input,
-        event: &glfw::WindowEvent,
+        event: &winit::event::WindowEvent,
     ) -> Result<Option<Message>>;
 
     fn draw_frame(

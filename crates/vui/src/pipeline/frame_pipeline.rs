@@ -10,7 +10,6 @@ use crate::{
         command_buffer::CommandBuffer, render_device::RenderDevice,
         sync::SemaphorePool,
     },
-    vulkan_ext::CommandBufferExt,
 };
 
 pub struct FramePipeline {

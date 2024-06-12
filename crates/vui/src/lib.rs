@@ -9,8 +9,6 @@ pub mod pipeline;
 pub mod timing;
 pub mod ui;
 pub mod vulkan;
-pub mod vulkan_ext;
-pub mod window;
 
 pub type Mat4 = nalgebra::Matrix4<f32>;
 pub type Vec2 = nalgebra::Vector2<f32>;

@@ -6,7 +6,7 @@ use crate::{
         id_hash,
         primitives::{Justify, SpaceBetween},
         widgets::{
-            Button, Col, ComposedMessage, Composite, CompositeWidget,
+            Col, ComposedMessage, Composite, CompositeWidget,
             Container, Element, Label, Row, WithContainer,
         },
         Font, Id,
@@ -59,25 +59,6 @@ impl<Message> Window<Message>
             ..self
         }
     }
-
-    fn text_button<T>(
-        &self,
-        id: Id,
-        on_click: WindowEvent,
-        text: T,
-    ) -> Button<ComposedMessage<WindowEvent, Message>>
-        where
-            T: AsRef<str>,
-    {
-        let label = Label::new(&self.font, text)
-            .container()
-            .padding(self.font.line_height() * 0.125);
-        Button::new(id, label)
-            .on_click(ComposedMessage::Internal(on_click))
-            .color(vec4(0.0, 0.0, 0.0, 0.2))
-            .hover_color(vec4(1.0, 1.0, 1.0, 0.2))
-            .pressed_color(vec4(1.0, 1.0, 1.0, 0.5))
-    }
 }
 
 impl<Message> CompositeWidget<WindowEvent, Message> for Window<Message>
@@ -94,20 +75,10 @@ impl<Message> CompositeWidget<WindowEvent, Message> for Window<Message>
         &mut self,
         state: &Self::State,
     ) -> Element<ComposedMessage<WindowEvent, Message>> {
-        let toggle_id = gen_id!(&format!("{} button", self.title));
-
-        match state {
+         match state {
             WindowState::Hidden => {
                 let top_bar = Row::new()
                     .child(Label::new(&self.font, &self.title), Justify::Center)
-                    .child(
-                        self.text_button(
-                            toggle_id,
-                            WindowEvent::ShowWindow,
-                            "[show]",
-                        ),
-                        Justify::Center,
-                    )
                     .space_between(SpaceBetween::EvenSpaceBetween);
 
                 Col::new().child(top_bar, Justify::End).into()
@@ -115,14 +86,6 @@ impl<Message> CompositeWidget<WindowEvent, Message> for Window<Message>
             WindowState::Visible => {
                 let top_bar = Row::new()
                     .child(Label::new(&self.font, &self.title), Justify::Center)
-                    .child(
-                        self.text_button(
-                            toggle_id,
-                            WindowEvent::HideWindow,
-                            "[hide]",
-                        ),
-                        Justify::Center,
-                    )
                     .space_between(SpaceBetween::EvenSpaceBetween);
 
                 let contents: Element<Message> =

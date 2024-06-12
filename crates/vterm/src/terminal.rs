@@ -3,35 +3,28 @@ use ::vui::{
     ui::{UIState, widgets::prelude::*},
 };
 
-use crate::constants::{get_fps, get_gpu};
-
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum TerminalMessage {
-    ToggleFullscreen,
+    // Add messages here.
 }
 
 pub struct Terminal {
     em: f32,
     font: Font,
-    is_fullscreen: bool,
 }
 
 impl Terminal {
     pub fn new(
         content_scale: f32,
-        asset_loader: &mut AssetLoader,
+        asset_loader: Option<&mut AssetLoader>,
     ) -> anyhow::Result<Self> {
         let em = 16.0 * content_scale;
         let font = Font::from_font_file(
             "/usr/share/fonts/TTF/zed-sans-extended.ttf",
-            1.0 * em,
-            asset_loader,
+            2.0 * em,
+            asset_loader.unwrap(),
         )?;
-        Ok(Self {
-            em,
-            font,
-            is_fullscreen: false,
-        })
+        Ok(Self { em, font })
     }
 }
 
@@ -42,14 +35,6 @@ impl UIState for Terminal {
         align(
             col()
                 .child(label(&self.font, "vterm"), Justify::Begin)
-                .child(
-                    label(&self.font, format!("{}", get_gpu().as_ref())),
-                    Justify::Begin,
-                )
-                .child(
-                    label(&self.font, format!("fps: {:.2}", get_fps())),
-                    Justify::Begin,
-                )
                 .space_between(SpaceBetween::Fixed(self.em / 4.0))
                 .container()
                 .padding(0.5 * self.em)
@@ -61,9 +46,7 @@ impl UIState for Terminal {
 
     fn update(&mut self, message: &TerminalMessage) {
         match *message {
-            TerminalMessage::ToggleFullscreen => {
-                self.is_fullscreen = !self.is_fullscreen;
-            }
+            // handle stuff here.
         }
     }
 }

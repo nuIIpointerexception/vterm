@@ -46,7 +46,7 @@ impl<Message> Widget<Message> for Row<Message> {
         &mut self,
         internal_state: &mut InternalState,
         input: &Input,
-        event: &glfw::WindowEvent,
+        event: &winit::event::WindowEvent,
     ) -> Result<Option<Message>> {
         for (child, _) in &mut self.children {
             if let Some(message) =

@@ -2,7 +2,6 @@ use crate::{math, Mat4};
 
 pub mod primitives;
 pub mod widgets;
-
 mod font;
 mod id;
 mod input;

@@ -55,19 +55,18 @@ impl<C: UIState> UI<C> {
 
     pub fn handle_event(
         &mut self,
-        event: &glfw::WindowEvent,
+        event: &winit::event::WindowEvent,
     ) -> Result<Option<C::Message>> {
-        use glfw::WindowEvent;
+        use winit::event::WindowEvent;
 
         self.input.handle_event(event);
-        match *event {
-            WindowEvent::FramebufferSize(width, height) => {
-                self.viewport =
-                    Rect::new(0.0, 0.0, height as f32, width as f32);
-                self.projection =
-                    ui_screen_space_projection((width, height).into());
-            }
-            _ => (),
+        if let WindowEvent::Resized(size) = *event {
+            self.viewport =
+                Rect::new(0.0, 0.0, size.height as f32, size.width as f32);
+            self.projection = ui_screen_space_projection(Dimensions::new(
+                size.width as f32,
+                size.height as f32,
+            ));
         }
 
         let message_opt = self.current_view.handle_event(
@@ -76,8 +75,7 @@ impl<C: UIState> UI<C> {
             event,
         )?;
 
-        if let Some(message) = &message_opt {
-            self.custom.update(message);
+        if message_opt.is_some() {
             self.flush();
         } else {
             self.layout();
@@ -99,7 +97,7 @@ impl<C: UIState> UI<C> {
 
         let frame_start = std::time::Instant::now();
 
-        frame.set_view_projection(self.projection);
+        let _ = frame.set_view_projection(self.projection);
         self.current_view
             .draw_frame(&mut self.internal_state, frame)?;
 

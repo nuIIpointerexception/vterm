@@ -52,11 +52,17 @@ impl RenderDevice {
 
         log::debug!("available presentation modes: {:?}", MdList(&modes));
 
-        let mode = if modes.contains(&vk::PresentModeKHR::MAILBOX) {
-            vk::PresentModeKHR::MAILBOX
-        } else {
-            vk::PresentModeKHR::IMMEDIATE
-        };
+        // prefer immediate mode, but fallback to mailbox or fifo
+        let mode = modes.iter()
+            .cloned()
+            .find(|&m| m == vk::PresentModeKHR::IMMEDIATE)
+            .unwrap_or_else(|| {
+                if modes.contains(&vk::PresentModeKHR::MAILBOX) {
+                    vk::PresentModeKHR::MAILBOX
+                } else {
+                    vk::PresentModeKHR::FIFO
+                }
+            });
 
         log::debug!("chosen presentation mode {:?}", mode);
 

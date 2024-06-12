@@ -1,4 +1,4 @@
-use ::ash::{extensions::khr, vk};
+use ::ash::{khr, vk};
 
 use crate::{errors::SwapchainError, vulkan::render_device::RenderDevice};
 
@@ -6,7 +6,7 @@ mod images;
 mod selection;
 
 pub struct Swapchain {
-    pub loader: khr::Swapchain,
+    pub loader: khr::swapchain::Device,
 
     pub khr: vk::SwapchainKHR,
 
@@ -109,7 +109,7 @@ impl RenderDevice {
         };
 
         let loader =
-            khr::Swapchain::new(&self.instance.ash, &self.logical_device);
+            khr::swapchain::Device::new(&self.instance.ash, &self.logical_device);
         let swapchain = unsafe {
             loader
                 .create_swapchain(&create_info, None)

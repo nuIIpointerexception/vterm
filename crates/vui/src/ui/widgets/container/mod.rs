@@ -102,7 +102,7 @@ where
         &mut self,
         internal_state: &mut InternalState,
         input: &Input,
-        event: &glfw::WindowEvent,
+        event: &winit::event::WindowEvent,
     ) -> Result<Option<Message>> {
         self.child.handle_event(internal_state, input, event)
     }

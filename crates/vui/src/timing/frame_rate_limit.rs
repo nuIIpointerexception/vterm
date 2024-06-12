@@ -32,7 +32,15 @@ impl FrameRateLimit {
     pub fn sleep_to_limit(&self) {
         let elapsed = Instant::now() - *self.frame_starts.front().unwrap();
         if elapsed < self.target_duration {
-            spin_sleep::sleep(self.target_duration - elapsed);
+            let remaining = self.target_duration - elapsed;
+            self.precise_sleep(remaining);
+        }
+    }
+
+    fn precise_sleep(&self, duration: Duration) {
+        let start = Instant::now();
+        while start.elapsed() < duration {
+            std::hint::spin_loop();
         }
     }
 

@@ -57,7 +57,7 @@ where
         &mut self,
         internal_state: &mut InternalState,
         input: &Input,
-        event: &glfw::WindowEvent,
+        event: &winit::event::WindowEvent,
     ) -> Result<Option<EMessage>> {
         if self.current_view.is_none() {
             let current_state =

@@ -51,7 +51,7 @@ impl<Message> Widget<Message> for HSplit<Message> {
         &mut self,
         internal_state: &mut InternalState,
         input: &Input,
-        event: &glfw::WindowEvent,
+        event: &winit::event::WindowEvent,
     ) -> Result<Option<Message>> {
         if let Some(elem) = &mut self.left {
             if let Some(message) =
