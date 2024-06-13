@@ -2,7 +2,7 @@ use std::{env, path::PathBuf, sync::Arc, time::Instant};
 
 use anyhow::{Context, Result};
 use ash::Entry;
-use log::{debug, info, warn};
+use log::{debug, warn};
 use winit::{
     application::ApplicationHandler,
     dpi::PhysicalSize,
@@ -11,7 +11,7 @@ use winit::{
     platform::{
         wayland::EventLoopBuilderExtWayland, x11::EventLoopBuilderExtX11,
     },
-    window::{CursorGrabMode, Fullscreen, Window, WindowId},
+    window::{Window, WindowId},
 };
 
 use vui::{
@@ -21,7 +21,6 @@ use vui::{
     Mat4,
     msaa::MSAARenderPass,
     pipeline::FramePipeline,
-    timing::FrameRateLimit,
     ui,
     ui::{primitives::Dimensions, UI, UIState},
     vulkan::{

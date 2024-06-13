@@ -1,5 +1,4 @@
 pub struct Args {
-    pub benchmark: bool,
     pub disable_validation: bool,
     pub window_protocol: Option<WindowProtocol>,
 }
@@ -24,8 +23,8 @@ impl Args {
             None
         };
         Args {
-            benchmark: std::env::args().any(|arg| arg == "--benchmark"),
-            disable_validation: std::env::args().any(|arg| arg == "--disable-validation"),
+            disable_validation: std::env::args()
+                .any(|arg| arg == "--disable-validation"),
             window_protocol,
         }
     }

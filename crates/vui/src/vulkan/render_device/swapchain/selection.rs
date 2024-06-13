@@ -50,10 +50,9 @@ impl RenderDevice {
                 .supported_presentation_modes(&self.physical_device)
         };
 
-        log::debug!("available presentation modes: {:?}", MdList(&modes));
-
         // prefer immediate mode, but fallback to mailbox or fifo
-        let mode = modes.iter()
+        let mode = modes
+            .iter()
             .cloned()
             .find(|&m| m == vk::PresentModeKHR::IMMEDIATE)
             .unwrap_or_else(|| {
@@ -63,8 +62,6 @@ impl RenderDevice {
                     vk::PresentModeKHR::FIFO
                 }
             });
-
-        log::debug!("chosen presentation mode {:?}", mode);
 
         mode
     }
@@ -79,7 +76,6 @@ impl RenderDevice {
         };
 
         if capabilities.current_extent.width != u32::MAX {
-            log::debug!("use current extent {:?}", capabilities.current_extent);
             Ok(capabilities.current_extent)
         } else {
             let (width, height) = framebuffer_size;
@@ -93,7 +89,6 @@ impl RenderDevice {
                     capabilities.max_image_extent.height,
                 ),
             };
-            log::debug!("use computed extent {:?}", extent);
             Ok(extent)
         }
     }

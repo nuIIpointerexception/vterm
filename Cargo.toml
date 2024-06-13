@@ -7,6 +7,16 @@ resolver = "2"
 [workspace.dependencies]
 vui = { path = "crates/vui" }
 vshell = { path = "crates/vshell" }
+winit = "0.30.1"
+anyhow = "1.0.44"
+log = "0.4.13"
+ash = { version = "0.38.0", features = ["linked"] }
+ash-window = "0.13.0"
+nalgebra = "*"
+memoffset = "*"
+thiserror = "1.0.29"
+image = "0.25.1"
+ab_glyph = "*"
 
 [profile.dev]
 opt-level = 0

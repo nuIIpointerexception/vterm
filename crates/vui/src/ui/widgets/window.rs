@@ -3,27 +3,21 @@ use ::anyhow::Result;
 use crate::{
     gen_id,
     ui::{
+        Font,
+        Id,
         id_hash,
-        primitives::{Justify, SpaceBetween},
-        widgets::{
-            Col, ComposedMessage, Composite, CompositeWidget,
-            Container, Element, Label, Row, WithContainer,
+        primitives::{Justify, SpaceBetween}, widgets::{
+            Col, ComposedMessage, Composite, CompositeWidget, Container,
+            Element, Label, Row, WithContainer,
         },
-        Font, Id,
     },
-    vec4,
 };
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[derive(Default, Debug, Copy, Clone, Eq, PartialEq)]
 pub enum WindowState {
+    #[default]
     Hidden,
     Visible,
-}
-
-impl Default for WindowState {
-    fn default() -> Self {
-        WindowState::Hidden
-    }
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
@@ -40,8 +34,8 @@ pub struct Window<Message> {
 }
 
 impl<Message> Window<Message>
-    where
-        Message: 'static + std::fmt::Debug + Copy + Clone,
+where
+    Message: 'static + std::fmt::Debug + Copy + Clone,
 {
     pub fn new(font: Font, title: impl Into<String>) -> Self {
         let owned_title = title.into();
@@ -62,8 +56,8 @@ impl<Message> Window<Message>
 }
 
 impl<Message> CompositeWidget<WindowEvent, Message> for Window<Message>
-    where
-        Message: 'static + std::fmt::Debug + Copy + Clone,
+where
+    Message: 'static + std::fmt::Debug + Copy + Clone,
 {
     type State = WindowState;
 
@@ -75,7 +69,7 @@ impl<Message> CompositeWidget<WindowEvent, Message> for Window<Message>
         &mut self,
         state: &Self::State,
     ) -> Element<ComposedMessage<WindowEvent, Message>> {
-         match state {
+        match state {
             WindowState::Hidden => {
                 let top_bar = Row::new()
                     .child(Label::new(&self.font, &self.title), Justify::Center)
@@ -88,8 +82,7 @@ impl<Message> CompositeWidget<WindowEvent, Message> for Window<Message>
                     .child(Label::new(&self.font, &self.title), Justify::Center)
                     .space_between(SpaceBetween::EvenSpaceBetween);
 
-                let contents: Element<Message> =
-                    self.contents.take().unwrap().into();
+                let contents: Element<Message> = self.contents.take().unwrap();
 
                 Col::new()
                     .child(top_bar, Justify::End)
@@ -117,8 +110,8 @@ impl<Message> CompositeWidget<WindowEvent, Message> for Window<Message>
 }
 
 impl<Message> WithContainer<Message, Element<Message>> for Window<Message>
-    where
-        Message: 'static + std::fmt::Debug + Copy + Clone,
+where
+    Message: 'static + std::fmt::Debug + Copy + Clone,
 {
     fn container(self) -> Container<Message, Element<Message>> {
         let result: Element<Message> = self.into();
@@ -127,8 +120,8 @@ impl<Message> WithContainer<Message, Element<Message>> for Window<Message>
 }
 
 impl<Message> Into<Element<Message>> for Window<Message>
-    where
-        Message: 'static + std::fmt::Debug + Copy + Clone,
+where
+    Message: 'static + std::fmt::Debug + Copy + Clone,
 {
     fn into(self) -> Element<Message> {
         Element::new(Composite::new(self))
@@ -136,9 +129,9 @@ impl<Message> Into<Element<Message>> for Window<Message>
 }
 
 impl<Message> Into<Element<Message>>
-for Composite<WindowEvent, Message, Window<Message>>
-    where
-        Message: 'static + std::fmt::Debug + Copy + Clone,
+    for Composite<WindowEvent, Message, Window<Message>>
+where
+    Message: 'static + std::fmt::Debug + Copy + Clone,
 {
     fn into(self) -> Element<Message> {
         Element::new(self)

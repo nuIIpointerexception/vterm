@@ -5,7 +5,7 @@ name = "vterm"
 version = "0.0.1"
 publish = false
 license = "GPL-3.0-or-later"
-authors = ["nuii <contact@viable.gg>"]
+authors = ["nuiifra <contact@viable.gg>"]
 
 [[bin]]
 name = "vterm"
@@ -14,23 +14,8 @@ path = "src/main.rs"
 [dependencies]
 vui.workspace = true
 vshell.workspace = true
-
-anyhow = "1.0.44"
-winit = "0.30.1"
-flexi_logger = "0.17.1"
-log = "0.4.13"
-ash = { version = "0.38.0", features = ["linked"] }
-ash-window = "0.13.0"
-aquamarine = "*"
-nalgebra = "*"
-memoffset = "*"
-thiserror = "1.0.29"
-image = "0.24.0"
-ab_glyph = "*"
-
-[dev-dependencies]
-colored = "2.0"
-
-[dependencies.textwrap]
-features = ["terminal_size"]
-version = "0.13.2"
+anyhow.workspace = true
+winit.workspace = true
+log.workspace = true
+ash.workspace = true
+ash-window.workspace = true

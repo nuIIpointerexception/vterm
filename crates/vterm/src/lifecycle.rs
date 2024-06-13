@@ -11,7 +11,7 @@ use winit::{
 };
 
 use vui::{
-    errors::{InstanceError, RenderDeviceError, WindowError},
+    errors::{InstanceError, WindowError},
     vulkan::{
         instance::Instance, render_device::RenderDevice,
         window_surface::WindowSurface,

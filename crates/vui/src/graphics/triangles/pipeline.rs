@@ -21,11 +21,11 @@ pub(super) fn create_pipeline(
 ) -> Result<Pipeline, VulkanError> {
     let vertex_module = ShaderModule::from_spirv(
         vk_dev.clone(),
-        std::include_bytes!("shaders/passthrough.vert.spirv"),
+        include_bytes!("shaders/passthrough.vert.spirv"),
     )?;
     let fragment_module = ShaderModule::from_spirv(
         vk_dev.clone(),
-        std::include_bytes!("shaders/passthrough.frag.spirv"),
+        include_bytes!("shaders/passthrough.frag.spirv"),
     )?;
     let vertex_input_state = vk::PipelineVertexInputStateCreateInfo {
         ..Default::default()
@@ -68,7 +68,7 @@ pub(super) fn create_pipeline(
         ..Default::default()
     };
     let multisample_state = vk::PipelineMultisampleStateCreateInfo {
-        sample_shading_enable: 0,
+        sample_shading_enable: vk::FALSE,
         rasterization_samples: msaa_renderpass.samples(),
         p_sample_mask: std::ptr::null(),
         min_sample_shading: 1.0,

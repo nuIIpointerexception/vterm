@@ -6,7 +6,6 @@ pub mod graphics;
 pub mod math;
 pub mod msaa;
 pub mod pipeline;
-pub mod timing;
 pub mod ui;
 pub mod vulkan;
 
