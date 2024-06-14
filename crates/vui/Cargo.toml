@@ -1,9 +1,13 @@
 [package]
 name = "vui"
-version = "0.0.1"
-authors = ["nuii <contact@viable.gg>"]
-license = "GPL-3.0-or-later"
-edition = "2021"
+description = "ui library for vterm."
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+keywords.workspace = true
+repository.workspace = true
+documentation.workspace = true
 
 [lib]
 name = "vui"

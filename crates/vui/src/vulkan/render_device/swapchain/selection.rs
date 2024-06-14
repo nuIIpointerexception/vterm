@@ -1,8 +1,7 @@
 use ash::vk;
 
 use crate::{
-    errors::SwapchainError, markdown::MdList,
-    vulkan::render_device::RenderDevice,
+    errors::SwapchainError, format::MdList, vulkan::render_device::RenderDevice,
 };
 
 impl RenderDevice {

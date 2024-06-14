@@ -1,11 +1,13 @@
 [package]
-description = "A cross-platform, vulkan based terminal emulator"
-edition = "2021"
 name = "vterm"
-version = "0.0.1"
-publish = false
-license = "GPL-3.0-or-later"
-authors = ["nuiifra <contact@viable.gg>"]
+description = "A cross-platform, vulkan based terminal emulator"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+keywords.workspace = true
+repository.workspace = true
+documentation.workspace = true
 
 [[bin]]
 name = "vterm"
@@ -13,9 +15,22 @@ path = "src/main.rs"
 
 [dependencies]
 vui.workspace = true
-vshell.workspace = true
 anyhow.workspace = true
 winit.workspace = true
 log.workspace = true
 ash.workspace = true
 ash-window.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.52", features = [
+    "Win32_System_Console",
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_System_LibraryLoader",
+    "Win32_System_Threading",
+    "Win32_System_WindowsProgramming",
+    "Win32_System_IO",
+    "Win32_Graphics_Gdi",
+    "Win32_UI_Shell",
+    "Win32_UI_WindowsAndMessaging",
+] }

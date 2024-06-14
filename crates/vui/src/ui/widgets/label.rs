@@ -1,18 +1,15 @@
 use ::anyhow::Result;
 
 use crate::{
-    graphics::triangles::Frame,
-    ui::{
-        Font,
-        Input,
-        InternalState, primitives::{Dimensions, Rect, Tile}, widgets::{Element, Widget},
-    },
-    vec2, Vec2,
+    graphics::triangles::Frame, ui::{
+        primitives::{Dimensions, Rect, Tile}, widgets::{Element, Widget}, Font, Input, InternalState
+    }, vec2, vec4, Vec2, Vec4
 };
 
 pub struct Label {
     glyph_tiles: Vec<Tile>,
     bounds: Rect,
+    color: Vec4,
 }
 
 impl Label {
@@ -24,7 +21,12 @@ impl Label {
         Self {
             glyph_tiles,
             bounds,
+            color : vec4(1.0, 1.0, 1.0, 1.0),
         }
+    }
+    pub fn color(mut self, color: Vec4) -> Self {
+        self.color = color;
+        self
     }
 }
 
@@ -44,6 +46,8 @@ impl<Message> Widget<Message> for Label {
         frame: &mut Frame,
     ) -> Result<()> {
         for tile in &self.glyph_tiles {
+            let mut tile = tile.clone();
+            tile.color = self.color;
             tile.fill(frame)?;
         }
         Ok(())

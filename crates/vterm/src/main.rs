@@ -1,8 +1,8 @@
-use std::{env, path::PathBuf, sync::Arc, time::Instant};
+use std::{sync::Arc, time::Instant};
 
 use anyhow::{Context, Result};
 use ash::Entry;
-use log::{debug, warn};
+use log::info;
 use winit::{
     application::ApplicationHandler,
     dpi::PhysicalSize,
@@ -14,14 +14,14 @@ use winit::{
     window::{Window, WindowId},
 };
 
+#[cfg(debug_assertions)]
+use logger::{initialize_logger, initialize_panic_hook};
 use vui::{
     asset_loader::AssetLoader,
     errors::FrameError,
-    graphics::{Sprite, triangles::Triangles},
-    Mat4,
+    graphics::triangles::Triangles,
     msaa::MSAARenderPass,
     pipeline::FramePipeline,
-    ui,
     ui::{primitives::Dimensions, UI, UIState},
     vulkan::{
         allocator::{create_default_allocator, MemoryAllocator},
@@ -29,15 +29,19 @@ use vui::{
         render_device::RenderDevice,
     },
 };
+#[cfg(windows)]
+use windows_sys::Win32::System::Console::{
+    ATTACH_PARENT_PROCESS, AttachConsole, FreeConsole,
+};
 
 use crate::{
     cli::{Args, WindowProtocol},
-    logger::{initialize_logger, initialize_panic_hook},
     terminal::Terminal,
 };
 
 mod cli;
 mod lifecycle;
+#[cfg(debug_assertions)]
 mod logger;
 mod terminal;
 
@@ -55,8 +59,7 @@ struct AppState {
     args: Args,
 
     frame_pipeline: Option<FramePipeline>,
-    ui_layer: Option<Triangles>,
-    app_layer: Option<Triangles>,
+    frame_layer: Option<Triangles>,
     asset_loader: Option<AssetLoader>,
     msaa_renderpass: Option<MSAARenderPass>,
     framebuffers: Vec<Framebuffer>,
@@ -64,10 +67,7 @@ struct AppState {
     vk_dev: Option<Arc<RenderDevice>>,
     vk_alloc: Option<Arc<dyn MemoryAllocator>>,
 
-    sprite_texture: i32,
-    ui: Option<UI<Terminal>>,
-    app_camera: Mat4,
-    rotation_angle: f32,
+    root: Option<UI<Terminal>>,
 }
 
 impl ApplicationHandler for AppState {
@@ -104,36 +104,12 @@ impl ApplicationHandler for AppState {
 
         let (w, h): (u32, u32) = window.inner_size().into();
 
-        let ui = UI::new(
+        let root = UI::new(
             Dimensions::new(w as f32, h as f32),
             Terminal::new(1.0, Some(&mut asset_loader)).unwrap(),
         );
 
-        let aspect_ratio = w as f32 / h as f32;
-        let height = 10.0;
-        let width = height * aspect_ratio;
-        let projection = vui::math::projections::ortho(
-            -0.5 * width,
-            0.5 * width,
-            -0.5 * height,
-            0.5 * height,
-            0.0,
-            1.0,
-        );
-
-        let current_dir = env::current_dir().unwrap();
-        let mut file_path = PathBuf::from(current_dir);
-        file_path.push("assets/rust.png");
-        let sprite_texture = asset_loader.read_texture(file_path).unwrap();
-
-        let app_layer = Triangles::new(
-            &msaa_renderpass,
-            asset_loader.textures(),
-            vk_alloc.clone(),
-            vk_dev.clone(),
-        )
-        .unwrap();
-        let ui_layer = Triangles::new(
+        let frame_layer = Triangles::new(
             &msaa_renderpass,
             asset_loader.textures(),
             vk_alloc.clone(),
@@ -150,11 +126,8 @@ impl ApplicationHandler for AppState {
         self.msaa_renderpass = Some(msaa_renderpass);
         self.framebuffers = framebuffers;
         self.asset_loader = Some(asset_loader);
-        self.ui_layer = Some(ui_layer);
-        self.app_layer = Some(app_layer);
-        self.ui = Some(ui);
-        self.app_camera = projection;
-        self.sprite_texture = sprite_texture;
+        self.frame_layer = Some(frame_layer);
+        self.root = Some(root);
     }
 
     fn window_event(
@@ -164,28 +137,14 @@ impl ApplicationHandler for AppState {
         event: WindowEvent,
     ) {
         if let Some(message) =
-            self.ui.as_mut().unwrap().handle_event(&event).unwrap()
+            self.root.as_mut().unwrap().handle_event(&event).unwrap()
         {
-            self.ui.as_mut().unwrap().state_mut().update(&message);
+            self.root.as_mut().unwrap().state_mut().update(&message);
         }
 
         match event {
             WindowEvent::Resized(new_size) => {
                 if Some(new_size) != self.last_window_size {
-                    if let Some(old_size) = self.last_window_size {
-                        debug!(
-                            "window resized from {}x{} to {}x{}",
-                            old_size.width,
-                            old_size.height,
-                            new_size.width,
-                            new_size.height
-                        );
-                    } else {
-                        debug!(
-                            "window initially resized to {}x{}",
-                            new_size.width, new_size.height
-                        );
-                    }
                     self.last_window_size = Some(new_size);
                     self.swapchain_needs_rebuild = true;
                 }
@@ -201,7 +160,7 @@ impl ApplicationHandler for AppState {
         &mut self,
         _: &ActiveEventLoop,
         _: DeviceId,
-        event: DeviceEvent,
+        _event: DeviceEvent,
     ) {
         // TODO: Handle input events
     }
@@ -220,11 +179,9 @@ impl ApplicationHandler for AppState {
         let result = self.compose_frame();
         match result {
             Err(FrameError::UnexpectedRuntimeError(_e)) => {
-                warn!("unexpected runtime error");
                 self.swapchain_needs_rebuild = true;
             }
             Err(FrameError::SwapchainNeedsRebuild) => {
-                warn!("swapchain needs rebuild");
                 self.swapchain_needs_rebuild = true;
             }
             _ => result.unwrap(),
@@ -257,46 +214,19 @@ impl AppState {
         }
 
         let mut app_frame = self
-            .app_layer
+            .frame_layer
             .as_mut()
             .unwrap()
             .acquire_frame(index)
-            .with_context(|| "unable to acquire application layer frame")?;
+            .with_context(|| "unable to acquire root layer frame")?;
 
-        app_frame.set_view_projection(self.app_camera)?;
-
-        Sprite {
-            width: 6.0,
-            height: 6.0,
-            texture_index: self.sprite_texture,
-            angle_in_radians: self.rotation_angle,
-            ..Default::default()
-        }
-        .draw(&mut app_frame)?;
-
-        self.rotation_angle += 0.01;
+        self.root.as_mut().unwrap().draw_frame(&mut app_frame)?;
 
         unsafe {
-            self.app_layer
+            self.frame_layer
                 .as_mut()
                 .unwrap()
                 .complete_frame(cmds, app_frame, index)?;
-        }
-
-        let mut ui_frame = self
-            .ui_layer
-            .as_mut()
-            .unwrap()
-            .acquire_frame(index)
-            .with_context(|| "unable to acquire ui layer frame")?;
-
-        self.ui.as_mut().unwrap().draw_frame(&mut ui_frame)?;
-
-        unsafe {
-            self.ui_layer
-                .as_mut()
-                .unwrap()
-                .complete_frame(cmds, ui_frame, index)?;
             self.msaa_renderpass.as_mut().unwrap().end_renderpass(cmds);
         }
 
@@ -328,28 +258,58 @@ impl AppState {
             .as_mut()
             .unwrap()
             .create_swapchain_framebuffers()?;
-        self.app_layer
+        self.frame_layer
             .as_mut()
             .unwrap()
             .rebuild_swapchain_resources(
-                &self.msaa_renderpass.as_mut().unwrap(),
-            )?;
-        self.ui_layer
-            .as_mut()
-            .unwrap()
-            .rebuild_swapchain_resources(
-                &self.msaa_renderpass.as_mut().unwrap(),
+                self.msaa_renderpass.as_mut().unwrap(),
             )?;
 
         Ok(())
     }
 }
 
+pub fn setup_environment_variables() {
+    #[cfg(unix)]
+    {
+        let terminfo = "xterm-256color";
+        info!("[setup_environment_variables] terminfo: {terminfo}");
+        std::env::set_var("TERM", terminfo);
+    }
+
+    std::env::set_var("TERM_PROGRAM", "vterm");
+    std::env::set_var("TERM_PROGRAM_VERSION", env!("CARGO_PKG_VERSION"));
+
+    std::env::set_var("COLORTERM", "truecolor");
+    std::env::remove_var("DESKTOP_STARTUP_ID");
+    std::env::remove_var("XDG_ACTIVATION_TOKEN");
+
+    // TODO(nuii): add env vars from config...
+}
+
 pub fn main() {
-    initialize_logger();
-    initialize_panic_hook();
+    #[cfg(debug_assertions)]
+    {
+        initialize_logger();
+        initialize_panic_hook();
+    }
+
+    #[cfg(windows)]
+    unsafe {
+        AttachConsole(ATTACH_PARENT_PROCESS);
+    }
 
     let args = Args::parse();
+
+    #[cfg(target_os = "linux")]
+    {
+        if std::path::PathBuf::from("/.flatpak-info").exists() {
+            info!("Running in a Flatpak environment");
+            // TODO(nuii): flatpak.
+        }
+    }
+    setup_environment_variables();
+
     let event_loop = create_event_loop(&args);
     let mut app_state = AppState {
         window: None,
@@ -358,8 +318,7 @@ pub fn main() {
         frame_index: 0,
         args,
         frame_pipeline: None,
-        ui_layer: None,
-        app_layer: None,
+        frame_layer: None,
         asset_loader: None,
         msaa_renderpass: None,
         framebuffers: Vec::new(),
@@ -367,12 +326,14 @@ pub fn main() {
         vk_dev: None,
         vk_alloc: None,
 
-        sprite_texture: 0,
-        ui: None,
-        app_camera: Mat4::identity(),
-        rotation_angle: 0.0,
+        root: None,
     };
     event_loop.run_app(&mut app_state).unwrap();
+
+    #[cfg(windows)]
+    unsafe {
+        FreeConsole();
+    }
 }
 
 fn create_event_loop(args: &Args) -> EventLoop<()> {

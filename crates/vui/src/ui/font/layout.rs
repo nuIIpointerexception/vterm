@@ -3,45 +3,37 @@ use ::ab_glyph::{FontArc, Glyph, PxScaleFont, ScaleFont};
 use crate::ui::Font;
 
 impl Font {
-    pub(super) fn layout_text<T>(
+    pub(super) fn layout_text<T: AsRef<str>>(
         font: &PxScaleFont<FontArc>,
         content: T,
-    ) -> Vec<Glyph>
-        where
-            T: AsRef<str>,
-    {
+    ) -> Vec<Glyph> {
         let v_advance = (font.line_gap() + font.height()).ceil() as u32;
+        let mut glyphs = Vec::with_capacity(content.as_ref().len());
+        let mut line_number = 1;
+        let mut cursor_x = 0.0;
+        let mut cursor_y = v_advance as f32;
+        let mut prev_glyph_id = None;
 
-        let mut glyphs = vec![];
-        let mut line_number = 1u32;
-        let mut cursor = ab_glyph::point(0.0, (line_number * v_advance) as f32);
-
-        let mut previous_glyph: Option<Glyph> = None;
         for char in content.as_ref().chars() {
-            if char.is_control() {
-                if char == '\n' {
-                    line_number += 1;
-                    cursor.x = 0.0;
-                    cursor.y = (line_number * v_advance) as f32;
+            if char == '\n' {
+                line_number += 1;
+                cursor_x = 0.0;
+                cursor_y = (line_number * v_advance) as f32;
+                prev_glyph_id = None;
+            } else if !char.is_control() {
+                let glyph_id = font.glyph_id(char);
+                if let Some(prev_id) = prev_glyph_id {
+                    cursor_x += font.kern(prev_id, glyph_id);
                 }
-                previous_glyph = None;
-                continue;
+                let position =
+                    ab_glyph::point(cursor_x.round(), cursor_y.round());
+                glyphs.push(
+                    font.glyph_id(char)
+                        .with_scale_and_position(font.scale(), position),
+                );
+                cursor_x += font.h_advance(glyph_id);
+                prev_glyph_id = Some(glyph_id);
             }
-
-            let mut glyph = font.scaled_glyph(char);
-            let glyph_id = glyph.id;
-
-            if let Some(previous) = previous_glyph.take() {
-                let kern = font.kern(previous.id, glyph.id);
-                cursor.x += kern;
-            }
-
-            cursor.x = cursor.x.round();
-            cursor.y = cursor.y.round();
-            glyph.position = cursor;
-            glyphs.push(glyph.clone());
-
-            cursor.x += font.h_advance(glyph_id);
         }
 
         glyphs

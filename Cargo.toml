@@ -1,12 +1,23 @@
 [workspace]
-
-members = ["crates/vui", "crates/vterm", "crates/vshell"]
+members = ["crates/vui", "crates/vterm", "crates/vshell", "crates/vtty"]
 default-members = ["crates/vterm"]
 resolver = "2"
+
+
+[workspace.package]
+version = "0.1.0"
+authors = ["nuii <contact@viable.gg>"]
+edition = "2021"
+license = "GPL-3.0-or-later"
+keywords = ["graphics", "terminal"]
+repository = "https://github.com/viablegg/vterm"
+homepage = "https://viable.gg/vterm"
+documentation = "https://github.com/viablegg/vterm#readme"
 
 [workspace.dependencies]
 vui = { path = "crates/vui" }
 vshell = { path = "crates/vshell" }
+vtty = { path = "crates/vtty" }
 winit = "0.30.1"
 anyhow = "1.0.44"
 log = "0.4.13"
@@ -17,6 +28,8 @@ memoffset = "*"
 thiserror = "1.0.29"
 image = "0.25.1"
 ab_glyph = "*"
+bitflags = "2.5.0"
+libc = "0.2.155"
 
 [profile.dev]
 opt-level = 0
@@ -28,32 +41,9 @@ codegen-units = 16
 incremental = true
 rpath = false
 
-[profile.dev.build-override]
-opt-level = 0
-codegen-units = 16
-
 [profile.release]
 opt-level = "z"
 lto = true
 codegen-units = 1
 panic = "abort"
 strip = true
-
-[profile.release.build-override]
-opt-level = 3
-
-[workspace.lints.clippy]
-dbg_macro = "deny"
-#todo = "deny" # Very alpha stage codebase, so we're not ready for this yet.
-
-single_range_in_vec_init = "allow"
-style = "allow"
-
-almost_complete_range = "allow"
-arc_with_non_send_sync = "allow"
-borrowed_box = "allow"
-let_underscore_future = "allow"
-map_entry = "allow"
-non_canonical_partial_ord_impl = "allow"
-reversed_empty_ranges = "allow"
-type_complexity = "allow"

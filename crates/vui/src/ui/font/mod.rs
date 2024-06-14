@@ -1,11 +1,7 @@
-mod layout;
-mod rasterize;
+use std::{collections::HashMap, fs::File, io::Read};
 
-use ::{
-    ab_glyph::{Font as AbFont, FontArc, GlyphId, PxScaleFont, ScaleFont},
-    anyhow::Result,
-    std::{collections::HashMap, fs::File, io::Read, path::Path},
-};
+use ab_glyph::{Font as AbFont, FontArc, GlyphId, PxScaleFont, ScaleFont};
+use anyhow::Result;
 
 use crate::{
     asset_loader::AssetLoader,
@@ -14,29 +10,99 @@ use crate::{
     vec4, Vec4,
 };
 
+mod layout;
+mod rasterize;
+
+#[derive(Debug, Clone, Default)]
+pub struct FontConfig {
+    pub regular: Option<String>,
+    pub bold: Option<String>,
+    pub light: Option<String>,
+    pub medium: Option<String>,
+}
+
+impl FontConfig {
+    pub fn regular(mut self, path: String) -> Self {
+        self.regular = Some(path);
+        self
+    }
+
+    pub fn bold(mut self, path: String) -> Self {
+        self.bold = Some(path);
+        self
+    }
+
+    pub fn light(mut self, path: String) -> Self {
+        self.light = Some(path);
+        self
+    }
+
+    pub fn medium(mut self, path: String) -> Self {
+        self.medium = Some(path);
+        self
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct FontFamily {
+    pub regular: Font,
+    pub bold: Font,
+    pub light: Font,
+    pub medium: Font,
+}
+
+impl FontFamily {
+    pub fn new(
+        config: FontConfig,
+        scale: f32,
+        asset_loader: &mut AssetLoader,
+    ) -> Result<Self> {
+        Ok(Self {
+            regular: Font::from_file(config.regular, FontWeight::Regular, scale, asset_loader)?,
+            bold: Font::from_file(config.bold, FontWeight::Bold, scale, asset_loader)?,
+            light: Font::from_file(config.light, FontWeight::Light, scale, asset_loader)?,
+            medium: Font::from_file(config.medium, FontWeight::Medium, scale, asset_loader)?,
+        })
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum FontWeight {
+    Regular,
+    Bold,
+    Light,
+    Medium,
+}
+
 #[derive(Debug, Clone)]
 pub struct Font {
     font: PxScaleFont<FontArc>,
-
     texture_index: i32,
-
     glyph_texture_coords: HashMap<GlyphId, Rect>,
-
     text_color: Vec4,
 }
 
 impl Font {
     builder_field!(text_color, Vec4);
 
-    pub fn from_font_file(
-        path: impl AsRef<Path>,
+    fn from_file(
+        path: Option<String>,
+        weight: FontWeight,
         scale: f32,
         asset_loader: &mut AssetLoader,
     ) -> Result<Self> {
-        let bytes = {
-            let mut buffer = vec![];
-            File::open(path)?.read_to_end(&mut buffer)?;
-            buffer
+        let bytes = match path {
+            Some(path) => {
+                let mut buffer = vec![];
+                File::open(path)?.read_to_end(&mut buffer)?;
+                buffer
+            }
+            None => match weight {
+                FontWeight::Regular => include_bytes!("default/Roobert-Regular.ttf").to_vec(),
+                FontWeight::Bold => include_bytes!("default/Roobert-Bold.ttf").to_vec(),
+                FontWeight::Light => include_bytes!("default/Roobert-Light.ttf").to_vec(),
+                FontWeight::Medium => include_bytes!("default/Roobert-Medium.ttf").to_vec(),
+            },
         };
         let font = FontArc::try_from_vec(bytes)?;
         Self::from_ab_glyph_font(font.into_scaled(scale), asset_loader)
@@ -63,7 +129,9 @@ impl Font {
     ) -> Result<Self> {
         let glyphs = Self::layout_chars(
             &font,
-            10, 2048, font.codepoint_ids().map(|(_id, char)| char),
+            10,
+            2048,
+            font.codepoint_ids().map(|(_id, char)| char),
         );
 
         let (rasterized_glyphs, glyph_texture_coords) =
@@ -81,8 +149,8 @@ impl Font {
     }
 
     pub fn build_text_tiles<T>(&self, content: T) -> (Vec<Tile>, Rect)
-        where
-            T: AsRef<str>,
+    where
+        T: AsRef<str>,
     {
         let glyphs = Self::layout_text(&self.font, content);
         let mut tiles = Vec::with_capacity(glyphs.len());
@@ -132,8 +200,8 @@ impl Font {
     }
 }
 
-impl Into<Rect> for ab_glyph::Rect {
-    fn into(self) -> Rect {
-        Rect::new(self.min.y, self.min.x, self.max.y, self.max.x)
+impl From<ab_glyph::Rect> for Rect {
+    fn from(rect: ab_glyph::Rect) -> Self {
+        Rect::new(rect.min.y, rect.min.x, rect.max.y, rect.max.x)
     }
 }

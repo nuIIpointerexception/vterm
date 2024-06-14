@@ -9,7 +9,6 @@ pub mod instance;
 pub mod pipeline;
 pub mod render_device;
 pub mod render_pass;
-pub mod vulkan_debug;
 pub mod window_surface;
 
 pub mod sync;

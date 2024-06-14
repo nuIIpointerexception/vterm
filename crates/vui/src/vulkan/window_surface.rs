@@ -1,5 +1,4 @@
-use ash::khr::surface;
-use ash::vk;
+use ash::{khr::surface, vk};
 
 use crate::errors::WindowSurfaceError;
 
@@ -19,6 +18,10 @@ impl WindowSurface {
         }
     }
 
+    /// # Safety
+    /// This function is unsafe because it calls Vulkan functions.
+    /// - The caller must ensure that the surface is valid.
+    /// - The caller must ensure that the surface loader is valid.
     pub unsafe fn get_physical_device_surface_support(
         &self,
         physical_device: &vk::PhysicalDevice,
@@ -35,6 +38,10 @@ impl WindowSurface {
             )
     }
 
+    /// # Safety
+    /// This function is unsafe because it calls Vulkan functions.
+    /// - The caller must ensure that the surface is valid.
+    /// - The caller must ensure that the surface loader is valid.
     pub unsafe fn supported_formats(
         &self,
         physical_device: &vk::PhysicalDevice,
@@ -44,6 +51,10 @@ impl WindowSurface {
             .unwrap_or_else(|_| vec![])
     }
 
+    /// # Safety
+    /// This function is unsafe because it calls Vulkan functions.
+    /// - The caller must ensure that the surface is valid.
+    /// - The caller must ensure that the surface loader is valid.
     pub unsafe fn supported_presentation_modes(
         &self,
         physical_device: &vk::PhysicalDevice,
@@ -56,6 +67,10 @@ impl WindowSurface {
             .unwrap_or_else(|_| vec![])
     }
 
+    /// # Safety
+    /// This function is unsafe because it calls Vulkan functions.
+    /// - The caller must ensure that the surface is valid.
+    /// - The caller must ensure that the surface loader is valid.
     pub unsafe fn surface_capabilities(
         &self,
         physical_device: &vk::PhysicalDevice,
