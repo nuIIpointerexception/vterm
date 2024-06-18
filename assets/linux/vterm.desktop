@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+TryExec=vterm
+Exec=vterm
+Icon=vterm
+Terminal=false
+Categories=System;TerminalEmulator;Development
+
+Name=vterm
+GenericName=Terminal
+Comment=A high-performance, vulkan based terminal emulator
+StartupNotify=true
+StartupWMClass=vterm
