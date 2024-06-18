@@ -13,6 +13,8 @@ use crate::{
     },
 };
 
+use super::CompositeStyle;
+
 #[derive(Default, Debug, Copy, Clone, Eq, PartialEq)]
 pub enum WindowState {
     #[default]
@@ -75,7 +77,7 @@ where
                     .child(Label::new(&self.font, &self.title), Justify::Center)
                     .space_between(SpaceBetween::EvenSpaceBetween);
 
-                Col::new().child(top_bar, Justify::End).into()
+                Col::new().child(top_bar).into()
             }
             WindowState::Visible => {
                 let top_bar = Row::new()
@@ -85,8 +87,8 @@ where
                 let contents: Element<Message> = self.contents.take().unwrap();
 
                 Col::new()
-                    .child(top_bar, Justify::End)
-                    .child(contents, Justify::Center)
+                    .child(top_bar)
+                    .child(contents)
                     .into()
             }
         }

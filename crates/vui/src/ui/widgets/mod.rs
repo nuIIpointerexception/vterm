@@ -14,8 +14,14 @@ pub use self::{
     element::Element,
     hsplit::HSplit,
     label::Label,
+    label::LabelStyle,
     row::Row,
     window::Window,
+    image::Image,
+    style::CompositeStyle,
+    style::Drawable,
+    style::Style,
+    style::FillStyle,
 };
 
 mod align;
@@ -27,6 +33,8 @@ mod hsplit;
 mod label;
 mod row;
 mod window;
+mod image;
+mod style;
 
 pub mod prelude;
 
@@ -39,7 +47,7 @@ pub trait Widget<Message> {
     ) -> Result<Option<Message>>;
 
     fn draw_frame(
-        &self,
+        &mut self,
         internal_state: &mut InternalState,
         frame: &mut Frame,
     ) -> Result<()>;
@@ -55,4 +63,5 @@ pub trait Widget<Message> {
         internal_state: &mut InternalState,
         position: Vec2,
     );
+
 }

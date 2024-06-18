@@ -3,9 +3,7 @@ use ::anyhow::Result;
 use crate::{
     graphics::triangles::Frame,
     ui::{
-        Input,
-        InternalState,
-        primitives::Dimensions, widgets::{Element, Widget},
+        primitives::Dimensions, widgets::{CompositeStyle, Element, Widget}, Input, InternalState
     },
     Vec2,
 };
@@ -18,7 +16,10 @@ pub enum ComposedMessage<I, E> {
 
 pub struct ComposedElement<E>(pub Element<E>);
 
-impl<I, E> Widget<ComposedMessage<I, E>> for ComposedElement<E> {
+impl<I, E> Widget<ComposedMessage<I, E>> for ComposedElement<E>
+where
+    E: 'static,
+{
     fn handle_event(
         &mut self,
         internal_state: &mut InternalState,
@@ -31,7 +32,7 @@ impl<I, E> Widget<ComposedMessage<I, E>> for ComposedElement<E> {
     }
 
     fn draw_frame(
-        &self,
+        &mut self,
         internal_state: &mut InternalState,
         frame: &mut Frame,
     ) -> Result<()> {

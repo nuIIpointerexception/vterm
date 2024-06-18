@@ -14,9 +14,9 @@ use crate::{
 };
 
 pub trait UIState {
-    type Message;
+    type Message: 'static;
 
-    fn view(&self) -> Element<Self::Message>;
+    fn view(&mut self) -> Element<Self::Message>;
 
     fn update(&mut self, message: &Self::Message);
 }
@@ -36,7 +36,7 @@ pub struct UI<C: UIState> {
 }
 
 impl<C: UIState> UI<C> {
-    pub fn new(viewport: Dimensions, custom_ui: C) -> Self {
+    pub fn new(viewport: Dimensions, mut custom_ui: C) -> Self {
         let mut ui = Self {
             viewport: Rect::new(0.0, 0.0, viewport.height, viewport.width),
             projection: ui_screen_space_projection(viewport),
@@ -56,7 +56,10 @@ impl<C: UIState> UI<C> {
     pub fn handle_event(
         &mut self,
         event: &winit::event::WindowEvent,
-    ) -> Result<Option<C::Message>> {
+    ) -> Result<Option<C::Message>>
+    where
+        C::Message: 'static,
+    {
         use winit::event::WindowEvent;
 
         self.input.handle_event(event);
@@ -67,6 +70,7 @@ impl<C: UIState> UI<C> {
                 size.width as f32,
                 size.height as f32,
             ));
+            
         }
 
         let message_opt = self.current_view.handle_event(
@@ -78,6 +82,7 @@ impl<C: UIState> UI<C> {
         if message_opt.is_some() {
             self.flush();
         } else {
+            println!("No message, layouting.");
             self.layout();
         }
 

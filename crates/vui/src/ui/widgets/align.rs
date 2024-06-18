@@ -11,6 +11,8 @@ use crate::{
     vec2, Vec2,
 };
 
+use super::CompositeStyle;
+
 #[derive(Debug, Copy, Clone)]
 pub enum HAlignment {
     Center,
@@ -58,7 +60,7 @@ impl<Message, W: Widget<Message>> Align<Message, W> {
     }
 }
 
-impl<Message, W: Widget<Message>> Widget<Message> for Align<Message, W> {
+impl<Message: 'static, W: Widget<Message>> Widget<Message> for Align<Message, W> {
     fn handle_event(
         &mut self,
         internal_state: &mut InternalState,
@@ -69,7 +71,7 @@ impl<Message, W: Widget<Message>> Widget<Message> for Align<Message, W> {
     }
 
     fn draw_frame(
-        &self,
+        &mut self,
         internal_state: &mut InternalState,
         frame: &mut Frame,
     ) -> Result<()> {

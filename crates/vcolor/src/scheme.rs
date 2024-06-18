@@ -1,7 +1,7 @@
 /// This is the default color scheme used by Viable in every application.
 /// This is subject to change, but for now i need to store the colors somewhere i guess.
 
-// primary
+// primar
 pub const PRIMARY_BACKGROUND: &str = "#262427";
 pub const PRIMARY_FOREGROUND: &str = "#fcfcfa";
 

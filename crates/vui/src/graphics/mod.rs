@@ -1,11 +1,11 @@
 use ::anyhow::Result;
 
-pub use self::{sprite::Sprite, vertex::Vertex};
+pub use self::{sprite::Sprite, vertex::Vertex, rectangle::Rectangle};
 
 mod sprite;
 mod vertex;
+mod rectangle;
 
-mod color;
 pub mod triangles;
 
 pub trait VertexStream {

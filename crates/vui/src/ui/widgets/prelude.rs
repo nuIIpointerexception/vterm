@@ -5,25 +5,26 @@ pub use crate::{
         primitives::{Axis, Justify, SpaceBetween},
         widgets::{
             Align, Col, Constraint, Container, Element, HAlignment,
-            HSplit, Label, Row, VAlignment, Widget, Window,
-            WithContainer,
+            HSplit, Label, LabelStyle, Row, VAlignment, Widget, Window,
+            WithContainer, Image,
         },
         Font, Id,
     },
 };
 
 pub fn align<Message, W>(widget: W) -> Align<Message, W>
-    where
-        W: Widget<Message>,
+where
+    W: Widget<Message>,
 {
     Align::new(widget)
 }
 
-pub fn label<T>(font: &Font, text: T) -> Label
-    where
-        T: AsRef<str>,
-{
+pub fn label(font: &Font, text: &str) -> Label {
     Label::new(font, text)
+}
+
+pub fn img(width: f32, height: f32, texture_index: i32) -> Image {
+    Image::new(width, height, texture_index)
 }
 
 pub fn col<Message>() -> Col<Message> {

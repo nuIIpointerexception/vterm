@@ -10,11 +10,12 @@ use crate::{
         allocator::MemoryAllocator,
         buffer::GpuVec,
         command_buffer::OneTimeSubmitCommandPool,
-        image::{Image, sampler::Sampler, view::ImageView},
+        image::{sampler::Sampler, view::ImageView, Image},
         render_device::RenderDevice,
     },
 };
 
+#[derive(Clone)]
 pub struct AssetLoader {
     textures: Vec<CombinedImageSampler>,
     default_sampler: Arc<Sampler>,

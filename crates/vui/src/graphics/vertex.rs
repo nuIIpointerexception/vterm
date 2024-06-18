@@ -1,4 +1,4 @@
-use crate::{Vec2, Vec3, Vec4};
+use crate::{ui::color::Color, Vec2, Vec3, Vec4};
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -27,11 +27,11 @@ impl Default for Vertex {
 }
 
 impl Vertex {
-    pub fn new(pos: Vec3, rgba: Vec4, uv: Vec2, texture_index: i32) -> Vertex {
+    pub fn new(pos: Vec3, rgba: Color, uv: Vec2, texture_index: i32) -> Vertex {
         Self {
             pos: [pos.x, pos.y, pos.z, 1.0],
-            rgba: rgba.into(),
-            uv: uv.into(),
+            rgba: [rgba.r, rgba.g, rgba.b, rgba.a],
+            uv: [uv.x, uv.y],
             texture_index,
             _pad: 0,
         }

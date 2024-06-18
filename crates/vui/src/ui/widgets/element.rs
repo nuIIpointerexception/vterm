@@ -1,39 +1,46 @@
+use std::cell::RefMut;
+use std::sync::{Arc, Mutex};
+
 use ::anyhow::Result;
 
 use crate::{
-    graphics::triangles::Frame,
-    ui::{Input, InternalState, primitives::Dimensions, widgets::Widget},
+    graphics::{triangles::Frame, Rectangle},
+    ui::{color::{Color, Gradient}, primitives::{Dimensions, Rect}, widgets::{CompositeStyle, Widget}, Input, InternalState},
     Vec2,
 };
 
+
+#[derive(Clone)]
 pub struct Element<Message> {
-    pub(crate) widget: Box<dyn Widget<Message>>,
+    pub(crate) widget: Arc<Mutex<dyn Widget<Message>>>,
 }
 
 impl<Message> Element<Message> {
     pub fn new(widget: impl Widget<Message> + 'static) -> Self {
         Self {
-            widget: Box::new(widget),
+            widget: Arc::new(Mutex::new(widget)),
         }
     }
 }
 
-impl<Message> Widget<Message> for Element<Message> {
+impl<Message: 'static> Widget<Message> for Element<Message> {
     fn handle_event(
         &mut self,
         internal_state: &mut InternalState,
         input: &Input,
         event: &winit::event::WindowEvent,
     ) -> Result<Option<Message>> {
-        self.widget.handle_event(internal_state, input, event)
+        let mut widget = self.widget.lock().unwrap();
+        widget.handle_event(internal_state, input, event)
     }
 
     fn draw_frame(
-        &self,
+        &mut self,
         internal_state: &mut InternalState,
         frame: &mut Frame,
     ) -> Result<()> {
-        self.widget.draw_frame(internal_state, frame)
+        let mut widget = self.widget.lock().unwrap();
+        widget.draw_frame(internal_state, frame)
     }
 
     fn dimensions(
@@ -41,7 +48,8 @@ impl<Message> Widget<Message> for Element<Message> {
         internal_state: &mut InternalState,
         max_size: &Dimensions,
     ) -> Dimensions {
-        self.widget.dimensions(internal_state, max_size)
+        let mut widget = self.widget.lock().unwrap();
+        widget.dimensions(internal_state, max_size)
     }
 
     fn set_top_left_position(
@@ -49,6 +57,13 @@ impl<Message> Widget<Message> for Element<Message> {
         internal_state: &mut InternalState,
         position: Vec2,
     ) {
-        self.widget.set_top_left_position(internal_state, position)
+        let mut widget = self.widget.lock().unwrap();
+        widget.set_top_left_position(internal_state, position)
     }
+}
+
+pub trait StylableWidget<Message>: Widget<Message> {
+    fn bg(&self) -> CompositeStyle;
+    fn top_left(&self) -> Vec2;
+    fn bounds(&self) -> Rect;
 }

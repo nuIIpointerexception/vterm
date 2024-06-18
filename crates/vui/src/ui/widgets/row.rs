@@ -3,12 +3,12 @@ use ::anyhow::Result;
 use crate::{
     graphics::triangles::Frame,
     ui::{
-        Input,
-        InternalState,
-        primitives::{DimensionList, Dimensions, Justify, SpaceBetween}, widgets::{Element, Widget},
+        primitives::{DimensionList, Dimensions, Justify, Rect, SpaceBetween}, widgets::{Element, Widget}, Input, InternalState
     },
     Vec2,
 };
+
+use super::CompositeStyle;
 
 pub struct Row<Message> {
     children: Vec<(Element<Message>, Justify)>,
@@ -41,7 +41,7 @@ impl<Message> Row<Message> {
     }
 }
 
-impl<Message> Widget<Message> for Row<Message> {
+impl<Message: 'static> Widget<Message> for Row<Message> {
     fn handle_event(
         &mut self,
         internal_state: &mut InternalState,
@@ -59,11 +59,11 @@ impl<Message> Widget<Message> for Row<Message> {
     }
 
     fn draw_frame(
-        &self,
+        &mut self,
         internal_state: &mut InternalState,
         frame: &mut Frame,
     ) -> Result<()> {
-        for (child, _) in &self.children {
+        for (child, _) in &mut self.children {
             child.draw_frame(internal_state, frame)?;
         }
         Ok(())

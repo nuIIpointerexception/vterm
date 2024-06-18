@@ -3,6 +3,7 @@ use crate::{math, Mat4};
 pub mod primitives;
 pub mod widgets;
 pub mod font;
+pub mod color;
 mod id;
 mod input;
 mod internal_state;

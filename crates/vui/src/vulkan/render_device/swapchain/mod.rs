@@ -19,6 +19,18 @@ pub struct Swapchain {
     pub extent: vk::Extent2D,
 }
 
+impl Swapchain {
+    /// Get the width of the swapchain image.
+    pub fn width(&self) -> u32 {
+        self.extent.width
+    }
+
+    /// Get the height of the swapchain image.
+    pub fn height(&self) -> u32 {
+        self.extent.height
+    }
+}
+
 impl RenderDevice {
     pub fn with_swapchain<ReturnType, Func>(&self, func: Func) -> ReturnType
     where

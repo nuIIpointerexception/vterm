@@ -9,6 +9,7 @@ use crate::{
     },
 };
 
+#[derive(Clone)]
 pub struct GpuVec<T: Copy> {
     pub buffer: Buffer,
 

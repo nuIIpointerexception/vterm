@@ -10,6 +10,7 @@ use crate::{
     },
 };
 
+#[derive(Clone)]
 pub struct OneTimeSubmitCommandPool {
     pool: Arc<CommandPool>,
     cmd: CommandBuffer,

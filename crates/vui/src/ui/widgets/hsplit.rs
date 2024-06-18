@@ -10,6 +10,8 @@ use crate::{
     vec2, Vec2,
 };
 
+use super::CompositeStyle;
+
 pub struct HSplit<Message> {
     left: Option<Element<Message>>,
     right: Option<Element<Message>>,
@@ -46,7 +48,7 @@ impl<Message> HSplit<Message> {
     }
 }
 
-impl<Message> Widget<Message> for HSplit<Message> {
+impl<Message: 'static> Widget<Message> for HSplit<Message> {
     fn handle_event(
         &mut self,
         internal_state: &mut InternalState,
@@ -71,14 +73,14 @@ impl<Message> Widget<Message> for HSplit<Message> {
     }
 
     fn draw_frame(
-        &self,
+        &mut self,
         internal_state: &mut InternalState,
         frame: &mut Frame,
     ) -> Result<()> {
-        if let Some(elem) = &self.left {
+        if let Some(elem) = &mut self.left {
             elem.draw_frame(internal_state, frame)?;
         }
-        if let Some(elem) = &self.right {
+        if let Some(elem) = &mut self.right {
             elem.draw_frame(internal_state, frame)?;
         }
         Ok(())

@@ -69,7 +69,7 @@ impl Font {
             [0xFF, 0xFF, 0xFF, 0x00],
         );
 
-        for (glyph_id, outline) in outlines {
+        for (glyph_id,  outline) in outlines {
             let bounds = outline.px_bounds();
             let texture_coords = Rect::new(
                 bounds.min.y / max_height as f32,

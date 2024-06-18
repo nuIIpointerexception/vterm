@@ -10,6 +10,7 @@ use crate::{
     },
 };
 
+#[derive(Clone)]
 pub struct Buffer {
     pub raw: vk::Buffer,
 

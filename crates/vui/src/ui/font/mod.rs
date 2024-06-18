@@ -1,8 +1,10 @@
-use std::{collections::HashMap, fs::File, io::Read};
+use std::{collections::HashMap, f64::consts::FRAC_PI_4, fs::File, io::Read};
 
 use ab_glyph::{Font as AbFont, FontArc, GlyphId, PxScaleFont, ScaleFont};
 use anyhow::Result;
+use nalgebra::Matrix2;
 
+use super::color::Color;
 use crate::{
     asset_loader::AssetLoader,
     builder_field,
@@ -58,10 +60,34 @@ impl FontFamily {
         asset_loader: &mut AssetLoader,
     ) -> Result<Self> {
         Ok(Self {
-            regular: Font::from_file(config.regular, FontWeight::Regular, scale, asset_loader)?,
-            bold: Font::from_file(config.bold, FontWeight::Bold, scale, asset_loader)?,
-            light: Font::from_file(config.light, FontWeight::Light, scale, asset_loader)?,
-            medium: Font::from_file(config.medium, FontWeight::Medium, scale, asset_loader)?,
+            regular: Font::from_file(
+                config.regular,
+                FontWeight::Regular,
+                FontStyle::Regular,
+                scale,
+                asset_loader,
+            )?,
+            bold: Font::from_file(
+                config.bold,
+                FontWeight::Bold,
+                FontStyle::Regular,
+                scale,
+                asset_loader,
+            )?,
+            light: Font::from_file(
+                config.light,
+                FontWeight::Light,
+                FontStyle::Regular,
+                scale,
+                asset_loader,
+            )?,
+            medium: Font::from_file(
+                config.medium,
+                FontWeight::Medium,
+                FontStyle::Regular,
+                scale,
+                asset_loader,
+            )?,
         })
     }
 }
@@ -74,20 +100,30 @@ enum FontWeight {
     Medium,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum FontStyle {
+    Regular,
+    Italic,
+    Strikethrough,
+    Underline,
+}
+
 #[derive(Debug, Clone)]
 pub struct Font {
     font: PxScaleFont<FontArc>,
     texture_index: i32,
     glyph_texture_coords: HashMap<GlyphId, Rect>,
-    text_color: Vec4,
+    text_color: Color,
+    italic_angle: f32,
 }
 
 impl Font {
-    builder_field!(text_color, Vec4);
+    builder_field!(text_color, Color);
 
     fn from_file(
         path: Option<String>,
         weight: FontWeight,
+        style: FontStyle,
         scale: f32,
         asset_loader: &mut AssetLoader,
     ) -> Result<Self> {
@@ -98,34 +134,53 @@ impl Font {
                 buffer
             }
             None => match weight {
-                FontWeight::Regular => include_bytes!("default/Roobert-Regular.ttf").to_vec(),
-                FontWeight::Bold => include_bytes!("default/Roobert-Bold.ttf").to_vec(),
-                FontWeight::Light => include_bytes!("default/Roobert-Light.ttf").to_vec(),
-                FontWeight::Medium => include_bytes!("default/Roobert-Medium.ttf").to_vec(),
+                FontWeight::Regular => {
+                    include_bytes!("default/Roobert-Regular.ttf").to_vec()
+                }
+                FontWeight::Bold => {
+                    include_bytes!("default/Roobert-Bold.ttf").to_vec()
+                }
+                FontWeight::Light => {
+                    include_bytes!("default/Roobert-Light.ttf").to_vec()
+                }
+                FontWeight::Medium => {
+                    include_bytes!("default/Roobert-Medium.ttf").to_vec()
+                }
             },
         };
+        let italic_angle = match style {
+            FontStyle::Italic => 0.2,
+            _ => 0.0,
+        };
         let font = FontArc::try_from_vec(bytes)?;
-        Self::from_ab_glyph_font(font.into_scaled(scale), asset_loader)
+        Self::from_ab_glyph_font(
+            font.into_scaled(scale),
+            asset_loader,
+            italic_angle,
+        )
     }
 
     pub fn rescale(
-        self,
+        &mut self,
         scale: f32,
         asset_loader: &mut AssetLoader,
-    ) -> Result<Self> {
-        let rescaled_font = self.font.with_scale(scale);
-        let font = Self::from_ab_glyph_font(rescaled_font, asset_loader)?;
-        Ok(Self {
-            font: font.font,
-            texture_index: font.texture_index,
-            glyph_texture_coords: font.glyph_texture_coords,
-            ..self
-        })
+    ) -> Result<()> {
+        let rescaled_font = self.font.clone().with_scale(scale);
+        let font = Self::from_ab_glyph_font(
+            rescaled_font,
+            asset_loader,
+            self.italic_angle,
+        )?;
+        self.font = font.font;
+        self.texture_index = font.texture_index;
+        self.glyph_texture_coords = font.glyph_texture_coords;
+        Ok(())
     }
 
     pub fn from_ab_glyph_font(
         font: PxScaleFont<FontArc>,
         asset_loader: &mut AssetLoader,
+        italic_angle: f32,
     ) -> Result<Self> {
         let glyphs = Self::layout_chars(
             &font,
@@ -144,7 +199,8 @@ impl Font {
             font,
             texture_index,
             glyph_texture_coords,
-            text_color: vec4(1.0, 1.0, 1.0, 1.0),
+            text_color: Color::new(1.0, 1.0, 1.0, 1.0),
+            italic_angle,
         })
     }
 
@@ -183,7 +239,6 @@ impl Font {
                     ..Default::default()
                 };
                 tiles.push(tile);
-
                 let glyph_bounds: Rect = self.font.glyph_bounds(&glyph).into();
                 if let Some(total) = total_bounds.take() {
                     total_bounds = Some(total.expand(glyph_bounds));
@@ -193,6 +248,34 @@ impl Font {
             });
 
         (tiles, total_bounds.unwrap_or(Rect::new(0.0, 0.0, 0.0, 0.0)))
+    }
+
+    /// Calculates the bounds of the text.
+    /// We use it to calculate the width and height of the text for the background or so.
+    pub fn calculate_text_bounds<T>(&self, content: T) -> Rect
+    where
+        T: AsRef<str>,
+    {
+        let glyphs = Self::layout_text(&self.font, content);
+        let mut total_bounds: Option<Rect> = None;
+
+        glyphs
+            .into_iter()
+            .filter_map(|glyph| {
+                self.font
+                    .outline_glyph(glyph.clone())
+                    .map(|outline| (glyph, outline))
+            })
+            .for_each(|(glyph, _outline)| {
+                let glyph_bounds: Rect = self.font.glyph_bounds(&glyph).into();
+                if let Some(total) = total_bounds.take() {
+                    total_bounds = Some(total.expand(glyph_bounds));
+                } else {
+                    total_bounds = Some(glyph_bounds);
+                }
+            });
+
+        total_bounds.unwrap_or(Rect::new(0.0, 0.0, 0.0, 0.0))
     }
 
     pub fn line_height(&self) -> f32 {

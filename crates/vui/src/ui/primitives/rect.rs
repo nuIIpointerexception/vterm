@@ -69,6 +69,10 @@ impl Rect {
         self.translate(offset)
     }
 
+    pub fn top_left(&self) -> Vec2 {
+        self.top_left
+    }
+
     pub fn contains(&self, point: Vec2) -> bool {
         let horizontal = self.left() <= point.x && point.x <= self.right();
         let vertical = self.top() <= point.y && point.y <= self.bottom();
@@ -87,6 +91,7 @@ impl Rect {
             ),
         }
     }
+
 }
 
 #[cfg(test)]

@@ -1,8 +1,21 @@
-use std::{sync::Arc, time::Instant};
+use std::{borrow::BorrowMut, sync::Arc, time::Instant};
 
 use anyhow::{Context, Result};
 use ash::Entry;
 use log::info;
+#[cfg(debug_assertions)]
+use logger::{initialize_logger, initialize_panic_hook};
+use vui::{
+    asset_loader::{self, AssetLoader}, errors::FrameError, graphics::triangles::Triangles, math::projections, msaa::MSAARenderPass, pipeline::FramePipeline, ui::{primitives::Dimensions, UIState, UI}, vulkan::{
+        allocator::{create_default_allocator, MemoryAllocator},
+        framebuffer::Framebuffer,
+        render_device::RenderDevice,
+    }, Mat4
+};
+#[cfg(windows)]
+use windows_sys::Win32::System::Console::{
+    AttachConsole, FreeConsole, ATTACH_PARENT_PROCESS,
+};
 use winit::{
     application::ApplicationHandler,
     dpi::PhysicalSize,
@@ -12,26 +25,6 @@ use winit::{
         wayland::EventLoopBuilderExtWayland, x11::EventLoopBuilderExtX11,
     },
     window::{Window, WindowId},
-};
-
-#[cfg(debug_assertions)]
-use logger::{initialize_logger, initialize_panic_hook};
-use vui::{
-    asset_loader::AssetLoader,
-    errors::FrameError,
-    graphics::triangles::Triangles,
-    msaa::MSAARenderPass,
-    pipeline::FramePipeline,
-    ui::{primitives::Dimensions, UI, UIState},
-    vulkan::{
-        allocator::{create_default_allocator, MemoryAllocator},
-        framebuffer::Framebuffer,
-        render_device::RenderDevice,
-    },
-};
-#[cfg(windows)]
-use windows_sys::Win32::System::Console::{
-    ATTACH_PARENT_PROCESS, AttachConsole, FreeConsole,
 };
 
 use crate::{
@@ -66,7 +59,7 @@ struct AppState {
     swapchain_needs_rebuild: bool,
     vk_dev: Option<Arc<RenderDevice>>,
     vk_alloc: Option<Arc<dyn MemoryAllocator>>,
-
+    camera: Mat4,
     root: Option<UI<Terminal>>,
 }
 
@@ -99,16 +92,27 @@ impl ApplicationHandler for AppState {
         .unwrap();
         let framebuffers =
             msaa_renderpass.create_swapchain_framebuffers().unwrap();
+
         let mut asset_loader =
             AssetLoader::new(vk_dev.clone(), vk_alloc.clone()).unwrap();
-
         let (w, h): (u32, u32) = window.inner_size().into();
+
+        let aspect_ratio = w as f32 / h as f32;
+        let width = 10.0;
+        let height = width * aspect_ratio;
+        self.camera = vui::math::projections::ortho(
+            -0.5 * width,
+            0.5 * width,
+            -0.5 * height,
+            0.5 * height,
+            0.0,
+            1.0,
+        );
 
         let root = UI::new(
             Dimensions::new(w as f32, h as f32),
-            Terminal::new(1.0, Some(&mut asset_loader)).unwrap(),
+            Terminal::new(1.0, asset_loader.borrow_mut()).unwrap(),
         );
-
         let frame_layer = Triangles::new(
             &msaa_renderpass,
             asset_loader.textures(),
@@ -325,7 +329,7 @@ pub fn main() {
         swapchain_needs_rebuild: false,
         vk_dev: None,
         vk_alloc: None,
-
+        camera: Mat4::identity(),
         root: None,
     };
     event_loop.run_app(&mut app_state).unwrap();

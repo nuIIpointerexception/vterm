@@ -2,8 +2,8 @@ use anyhow::Result;
 
 use crate::{
     graphics::{Vertex, VertexStream},
-    ui::primitives::Rect,
-    vec2, vec3, vec4, Vec4,
+    ui::{color::Color, primitives::Rect},
+    vec2, vec3,
 };
 
 #[derive(Debug, Copy, Clone)]
@@ -14,7 +14,7 @@ pub struct Tile {
 
     pub depth: f32,
 
-    pub color: Vec4,
+    pub color: Color,
 
     pub outline_width: f32,
 
@@ -27,7 +27,7 @@ impl Default for Tile {
             model: Rect::new(1.0, -1.0, -1.0, 1.0),
             uv: Rect::new(0.0, 0.0, 1.0, 1.0),
             depth: 0.0,
-            color: vec4(1.0, 1.0, 1.0, 1.0),
+            color: Color::new(1.0, 1.0, 1.0, 1.0),
             outline_width: 1.0,
             texture_index: 0,
         }

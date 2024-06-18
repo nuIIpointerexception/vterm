@@ -12,6 +12,8 @@ use crate::{
 
 pub use self::composed_message::{ComposedElement, ComposedMessage};
 
+use super::CompositeStyle;
+
 mod composed_message;
 
 pub trait CompositeWidget<IMessage, EMessage> {
@@ -47,10 +49,10 @@ where
     }
 }
 
-impl<IMessage, EMessage, CW> Widget<EMessage>
+impl<IMessage: 'static, EMessage: 'static, CW> Widget<EMessage>
     for Composite<IMessage, EMessage, CW>
 where
-    CW: CompositeWidget<IMessage, EMessage>,
+    CW: CompositeWidget<IMessage, EMessage> + 'static,
     CW::State: 'static + Default,
 {
     fn handle_event(
@@ -86,12 +88,12 @@ where
     }
 
     fn draw_frame(
-        &self,
+        &mut self,
         internal_state: &mut InternalState,
         frame: &mut Frame,
     ) -> Result<()> {
         self.current_view
-            .as_ref()
+            .as_mut()
             .unwrap()
             .draw_frame(internal_state, frame)
     }

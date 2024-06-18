@@ -3,17 +3,14 @@ use std::sync::Arc;
 use ::ash::vk;
 
 use crate::{
-    asset_loader::CombinedImageSampler,
-    errors::VulkanError,
-    graphics::{Vertex, VertexStream},
-    vulkan::{
+    asset_loader::CombinedImageSampler, errors::VulkanError, graphics::{Vertex, VertexStream}, ui::{color::{Color, Gradient}, widgets::{CompositeStyle, Drawable, FillStyle, Style}}, vec2, vec3, vulkan::{
         allocator::MemoryAllocator,
         buffer::{Buffer, GpuVec},
         command_buffer::CommandBuffer,
         descriptor_set::{DescriptorPool, DescriptorSet, DescriptorSetLayout},
         pipeline::layout::PipelineLayout,
         render_device::RenderDevice,
-    },
+    }
 };
 
 #[repr(C)]
@@ -131,6 +128,33 @@ impl Frame {
             };
         Ok(())
     }
+
+    pub fn push_indices(&mut self, indices: &[u32]) -> Result<(), anyhow::Error> {
+        let base_index = self.vertex_data.len() as u32;
+        for &index in indices {
+            self.index_data.push_back(base_index + index)?;
+        }
+        Ok(())
+    }
+
+    pub fn fill_rect(&mut self, x: u32, y: u32, w: u32, h: u32, color: Color) {
+        let vertices = [
+            Vertex::new(vec3(x as f32, y as f32, 0.0), color, vec2(0.0, 0.0), 0),
+            Vertex::new(vec3((x + w) as f32, y as f32, 0.0), color, vec2(1.0, 0.0), 0),
+            Vertex::new(vec3((x + w) as f32, (y + h) as f32, 0.0), color, vec2(1.0, 1.0), 0),
+            Vertex::new(vec3(x as f32, (y + h) as f32, 0.0), color, vec2(0.0, 1.0), 0),
+        ];
+        _ = self.push_vertices(&vertices, &[0, 1, 2, 0, 2, 3]);
+    }
+
+    pub fn width(&self) -> u32 {
+        let swapchain = self.vk_dev.swapchain.lock().unwrap();
+        swapchain.as_ref().unwrap().width()
+    }
+    pub fn height(&self) -> u32 {
+        let swapchain = self.vk_dev.swapchain.lock().unwrap();
+        swapchain.as_ref().unwrap().height()
+    }
 }
 
 impl VertexStream for Frame {
@@ -139,13 +163,10 @@ impl VertexStream for Frame {
         vertices: &[Vertex],
         indices: &[u32],
     ) -> Result<(), anyhow::Error> {
-        let base_index = self.vertex_data.len() as u32;
         for vertex in vertices {
             self.push_vertex(*vertex)?;
         }
-        for index in indices {
-            self.index_data.push_back(base_index + index)?;
-        }
+        self.push_indices(indices)?;
         Ok(())
     }
 }
@@ -190,7 +211,7 @@ impl Frame {
         self.index_data.clear();
     }
 
-    fn push_vertex(&mut self, vertex: Vertex) -> Result<(), anyhow::Error> {
+    pub fn push_vertex(&mut self, vertex: Vertex) -> Result<(), anyhow::Error> {
         self.vertex_data_needs_rebound |= self.vertex_data.push_back(vertex)?;
         Ok(())
     }
@@ -203,3 +224,4 @@ impl Frame {
         );
     }
 }
+

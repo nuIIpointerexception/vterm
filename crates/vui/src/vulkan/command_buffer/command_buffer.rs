@@ -3,11 +3,11 @@ use std::sync::Arc;
 use ::ash::vk;
 
 use crate::{
-    errors::CommandBufferError,
+    errors::{CommandBufferError, CommandResult},
     vulkan::{command_buffer::CommandPool, render_device::RenderDevice},
 };
-use crate::errors::CommandResult;
 
+#[derive(Clone)]
 pub struct CommandBuffer {
     pub raw: vk::CommandBuffer,
 

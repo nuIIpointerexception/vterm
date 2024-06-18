@@ -1,17 +1,14 @@
 use ::anyhow::Result;
 
 use crate::{
-    builder_field,
-    graphics::triangles::Frame,
-    ui::{
-        Input,
-        InternalState,
-        primitives::{Dimensions, Rect, Tile}, widgets::{Element, Widget},
-    },
-    vec2, Vec2, vec4, Vec4,
+    builder_field, graphics::triangles::Frame, ui::{
+        color::Color, primitives::{Dimensions, Rect, Tile}, widgets::{Element, Widget}, Input, InternalState
+    }, vec2, Vec2, Vec4
 };
 
 pub use self::constraint::Constraint;
+
+use super::CompositeStyle;
 
 mod constraint;
 
@@ -37,7 +34,7 @@ impl<Message, Widget> Container<Message, Widget> {
             border: None,
 
             background: Tile {
-                color: vec4(1.0, 1.0, 1.0, 0.0),
+                color: Color::new(1.0, 1.0, 1.0, 0.0),
                 ..Default::default()
             },
 
@@ -66,7 +63,7 @@ impl<Message, Widget> Container<Message, Widget> {
         }
     }
 
-    pub fn border(self, width: f32, color: Vec4, texture_index: i32) -> Self {
+    pub fn border(self, width: f32, color: Color, texture_index: i32) -> Self {
         Self {
             border: Some(Tile {
                 outline_width: width,
@@ -78,7 +75,7 @@ impl<Message, Widget> Container<Message, Widget> {
         }
     }
 
-    pub fn background(self, color: Vec4, texture_index: i32) -> Self {
+    pub fn background(self, color: Color, texture_index: i32) -> Self {
         Self {
             background: Tile {
                 color,
@@ -94,7 +91,7 @@ impl<Message, Widget> Container<Message, Widget> {
     }
 }
 
-impl<Message, Child> Widget<Message> for Container<Message, Child>
+impl<Message: 'static, Child> Widget<Message> for Container<Message, Child>
 where
     Child: Widget<Message>,
 {
@@ -108,13 +105,13 @@ where
     }
 
     fn draw_frame(
-        &self,
+        &mut self,
         internal_state: &mut InternalState,
         frame: &mut Frame,
     ) -> Result<()> {
         self.background.fill(frame)?;
 
-        if let Some(border) = &self.border {
+        if let Some(border) = &mut self.border {
             border.outline(frame)?;
         }
 

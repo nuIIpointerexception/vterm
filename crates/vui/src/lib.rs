@@ -1,3 +1,5 @@
+#![feature(trait_upcasting)]
+
 pub mod asset_loader;
 pub mod errors;
 pub mod format;
