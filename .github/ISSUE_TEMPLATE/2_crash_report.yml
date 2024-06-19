@@ -1,0 +1,34 @@
+name: Crash Report
+description: |
+  Use this template for crash reports.
+labels: ["crash"]
+body:
+  - type: checkboxes
+    attributes:
+      label: Check for existing issues
+      description: Check the backlog of issues to reduce the chances of creating duplicates; if an issue already exists, place a `+1` (👍) on it.
+      options:
+        - label: Completed
+          required: true
+  - type: textarea
+    attributes:
+      label: Describe the crash / provide steps to reproduce it
+      description: A clear and concise description of what the crash is.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: |
+        - OS: [e.g. archlinux]
+        - vterm Version: [e.g. 0.1.0]
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: If applicable, attach any further logs or debug discoveries here.
+      description: |
+        We currently do not have proper logs, but will improve this in the future.
+    validations:
+      required: false

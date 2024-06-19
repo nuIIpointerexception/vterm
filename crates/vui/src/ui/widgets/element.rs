@@ -1,14 +1,20 @@
-use std::cell::RefMut;
-use std::sync::{Arc, Mutex};
+use std::{
+    cell::RefMut,
+    sync::{Arc, Mutex},
+};
 
 use ::anyhow::Result;
 
 use crate::{
     graphics::{triangles::Frame, Rectangle},
-    ui::{color::{Color, Gradient}, primitives::{Dimensions, Rect}, widgets::{CompositeStyle, Widget}, Input, InternalState},
+    ui::{
+        color::{Color, Gradient},
+        primitives::{Dimensions, Rect},
+        widgets::{CompositeStyle, Widget},
+        Input, InternalState,
+    },
     Vec2,
 };
-
 
 #[derive(Clone)]
 pub struct Element<Message> {

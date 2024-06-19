@@ -1,16 +1,15 @@
 use ::anyhow::Result;
 
+use super::CompositeStyle;
 use crate::{
     graphics::triangles::Frame,
     ui::{
-        Input,
-        InternalState,
-        primitives::Dimensions, widgets::{Element, Widget},
+        primitives::Dimensions,
+        widgets::{Element, Widget},
+        Input, InternalState,
     },
     vec2, Vec2,
 };
-
-use super::CompositeStyle;
 
 pub struct HSplit<Message> {
     left: Option<Element<Message>>,

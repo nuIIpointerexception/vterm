@@ -1,11 +1,5 @@
 use ::anyhow::Result;
 
-use crate::{
-    graphics::triangles::Frame,
-    ui::{Input, InternalState, primitives::Dimensions},
-    Vec2,
-};
-
 pub use self::{
     align::{Align, HAlignment, VAlignment},
     col::Col,
@@ -13,15 +7,16 @@ pub use self::{
     container::{Constraint, Container, WithContainer},
     element::Element,
     hsplit::HSplit,
-    label::Label,
-    label::LabelStyle,
-    row::Row,
-    window::Window,
     image::Image,
-    style::CompositeStyle,
-    style::Drawable,
-    style::Style,
-    style::FillStyle,
+    label::{Label, LabelStyle},
+    row::Row,
+    style::{CompositeStyle, Drawable, FillStyle, Style},
+    window::Window,
+};
+use crate::{
+    graphics::triangles::Frame,
+    ui::{primitives::Dimensions, Input, InternalState},
+    Vec2,
 };
 
 mod align;
@@ -30,11 +25,11 @@ mod composite;
 mod container;
 mod element;
 mod hsplit;
+mod image;
 mod label;
 mod row;
-mod window;
-mod image;
 mod style;
+mod window;
 
 pub mod prelude;
 
@@ -63,5 +58,4 @@ pub trait Widget<Message> {
         internal_state: &mut InternalState,
         position: Vec2,
     );
-
 }
