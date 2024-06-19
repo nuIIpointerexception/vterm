@@ -1,24 +1,16 @@
 # vterm
 
-### a cross platform, vulkan terminal emulator written in rust.
+### A cross-platform, Vulkan terminal emulator written in Rust.
 
-# deps:
+## Dependencies
 
-- vulkan sdk
-- rust nightly
-- just (optional)
+- Vulkan SDK
+- Rust nightly
 
-# usage:
+## Installation
 
-run it using just:
+For detailed installation instructions, please refer to the [INSTALL.md](./INSTALL.md) file.
 
-```bash
-just build
-just run
-```
+#### Note: Is your platform not supported? Either wait or contribute.
 
-or just copy out the build script out of the [justfile](./justfile) and run it manually.
-
-#### note: is your platform not supported? either wait or contribute.
-
-#### note: there is a small execution barrier (200ms~) before the terminal opens on NVIDIA cards, this is a driver related issue. this has something to do with vkCreateInstance and vkCreateDevice being extremely slow on NVIDIA cards. I am hoping to improve it as much as possible, but the biggest overhead lies in the lack of driver optimization. So I think we can expect improvements soon.
+#### Note: There is a small execution barrier (~200ms) before the terminal opens on NVIDIA cards. This is a driver-related issue. It has something to do with `vkCreateInstance` and `vkCreateDevice` being extremely slow on NVIDIA cards. I am hoping to improve it as much as possible, but the biggest overhead lies in the lack of driver optimization. So I think we can expect improvements soon.
