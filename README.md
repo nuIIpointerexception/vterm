@@ -10,14 +10,14 @@
 - [x] Image drawing
 - [x] Font drawing
 - [x] Custom font loading
-- [] Layouting for UI layer (Bugged right now)
-- [] Ptty
-- [] Handle input
-- [] Terminal buffer to screen
-- [] Tabs
-- [] Draggable / multi window
-- [] Menus, settings
-- [] Config
+- [ ] Layouting for UI layer (Bugged right now)
+- [ ] Ptty
+- [ ] Handle input
+- [ ] Terminal buffer to screen
+- [ ] Tabs
+- [ ] Draggable / multi window
+- [ ] Menus, settings
+- [ ] Config
 
 ## Dependencies
 
