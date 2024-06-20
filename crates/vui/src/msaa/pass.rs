@@ -5,10 +5,7 @@ use ash::vk;
 use crate::{
     errors::VulkanError,
     msaa::MSAARenderPass,
-    vulkan::{
-        image::view::ImageView, render_device::RenderDevice,
-        render_pass::RenderPass,
-    },
+    vulkan::{image::view::ImageView, render_device::RenderDevice, render_pass::RenderPass},
 };
 
 impl MSAARenderPass {
@@ -59,11 +56,7 @@ impl MSAARenderPass {
             vk::ImageLayout::PRESENT_SRC_KHR,
         );
 
-        let attachments = [
-            color_attachment,
-            depth_stencil_attachment,
-            color_resolve_attachment,
-        ];
+        let attachments = [color_attachment, depth_stencil_attachment, color_resolve_attachment];
         let attachment_references = [
             vk::AttachmentReference {
                 attachment: 0,
@@ -90,14 +83,14 @@ impl MSAARenderPass {
         let dependencies = [vk::SubpassDependency {
             src_subpass: vk::SUBPASS_EXTERNAL,
             dst_subpass: 0,
-            src_stage_mask: vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT
-                | vk::PipelineStageFlags::EARLY_FRAGMENT_TESTS,
-            dst_stage_mask: vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT
-                | vk::PipelineStageFlags::EARLY_FRAGMENT_TESTS,
+            src_stage_mask: vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT |
+                vk::PipelineStageFlags::EARLY_FRAGMENT_TESTS,
+            dst_stage_mask: vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT |
+                vk::PipelineStageFlags::EARLY_FRAGMENT_TESTS,
             src_access_mask: vk::AccessFlags::empty(),
-            dst_access_mask: vk::AccessFlags::COLOR_ATTACHMENT_READ
-                | vk::AccessFlags::COLOR_ATTACHMENT_WRITE
-                | vk::AccessFlags::DEPTH_STENCIL_ATTACHMENT_WRITE,
+            dst_access_mask: vk::AccessFlags::COLOR_ATTACHMENT_READ |
+                vk::AccessFlags::COLOR_ATTACHMENT_WRITE |
+                vk::AccessFlags::DEPTH_STENCIL_ATTACHMENT_WRITE,
             dependency_flags: vk::DependencyFlags::empty(),
         }];
         let render_pass_info = vk::RenderPassCreateInfo {

@@ -4,9 +4,7 @@ use ::ash::vk;
 
 use crate::{
     errors::BufferError,
-    vulkan::{
-        allocator::MemoryAllocator, buffer::Buffer, render_device::RenderDevice,
-    },
+    vulkan::{allocator::MemoryAllocator, buffer::Buffer, render_device::RenderDevice},
 };
 
 #[derive(Clone)]
@@ -33,8 +31,7 @@ impl<T: Copy> GpuVec<T> {
             vk_dev,
             vk_alloc,
             buffer_usage_flags,
-            vk::MemoryPropertyFlags::HOST_VISIBLE
-                | vk::MemoryPropertyFlags::HOST_COHERENT,
+            vk::MemoryPropertyFlags::HOST_VISIBLE | vk::MemoryPropertyFlags::HOST_COHERENT,
             Self::element_count_to_bytes(initial_capacity),
         )?;
         buffer.map()?;
@@ -74,7 +71,7 @@ impl<T: Copy> GpuVec<T> {
 
 impl<T: Copy> GpuVec<T> {
     fn element_count_to_bytes(count: u32) -> u64 {
-        count as u64 * std::mem::size_of::<T>() as u64
+        (count as u64) * (std::mem::size_of::<T>() as u64)
     }
 
     fn grow(&mut self, desired_capacity: u32) -> Result<(), BufferError> {
@@ -82,8 +79,7 @@ impl<T: Copy> GpuVec<T> {
             self.buffer.vk_dev.clone(),
             self.buffer.vk_alloc.clone(),
             self.usage_flags,
-            vk::MemoryPropertyFlags::HOST_VISIBLE
-                | vk::MemoryPropertyFlags::HOST_COHERENT,
+            vk::MemoryPropertyFlags::HOST_VISIBLE | vk::MemoryPropertyFlags::HOST_COHERENT,
             Self::element_count_to_bytes(desired_capacity),
         )?;
         buffer.map()?;
@@ -92,7 +88,7 @@ impl<T: Copy> GpuVec<T> {
         {
             let new_data = buffer.data_mut::<T>()?;
             let old_data = self.buffer.data::<T>()?;
-            new_data[..old_data.len()].copy_from_slice(old_data);
+            new_data[.. old_data.len()].copy_from_slice(old_data);
         }
 
         std::mem::swap(&mut self.buffer, &mut buffer);

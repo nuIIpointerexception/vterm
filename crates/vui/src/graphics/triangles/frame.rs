@@ -3,14 +3,19 @@ use std::sync::Arc;
 use ::ash::vk;
 
 use crate::{
-    asset_loader::CombinedImageSampler, errors::VulkanError, graphics::{Vertex, VertexStream}, ui::{color::{Color, Gradient}, widgets::{CompositeStyle, Drawable, FillStyle, Style}}, vec2, vec3, vulkan::{
+    asset_loader::CombinedImageSampler,
+    errors::VulkanError,
+    graphics::{Vertex, VertexStream},
+    ui::color::Color,
+    vec2, vec3,
+    vulkan::{
         allocator::MemoryAllocator,
         buffer::{Buffer, GpuVec},
         command_buffer::CommandBuffer,
         descriptor_set::{DescriptorPool, DescriptorSet, DescriptorSetLayout},
         pipeline::layout::PipelineLayout,
         render_device::RenderDevice,
-    }
+    },
 };
 
 #[repr(C)]
@@ -61,42 +66,25 @@ impl Frame {
             ],
         )?;
         let descriptor_set = descriptor_pool
-            .allocate_with_variable_counts(
-                descriptor_layout,
-                1,
-                textures.len() as u32,
-            )?
+            .allocate_with_variable_counts(descriptor_layout, 1, textures.len() as u32)?
             .pop()
             .unwrap();
 
-        let vertex_data = GpuVec::new(
-            vk_dev.clone(),
-            vk_alloc.clone(),
-            vk::BufferUsageFlags::STORAGE_BUFFER,
-            1,
-        )?;
-        let index_data = GpuVec::new(
-            vk_dev.clone(),
-            vk_alloc.clone(),
-            vk::BufferUsageFlags::INDEX_BUFFER,
-            500,
-        )?;
+        let vertex_data =
+            GpuVec::new(vk_dev.clone(), vk_alloc.clone(), vk::BufferUsageFlags::STORAGE_BUFFER, 1)?;
+        let index_data =
+            GpuVec::new(vk_dev.clone(), vk_alloc.clone(), vk::BufferUsageFlags::INDEX_BUFFER, 500)?;
         let mut uniform_data = Buffer::new(
             vk_dev.clone(),
             vk_alloc.clone(),
             vk::BufferUsageFlags::UNIFORM_BUFFER,
-            vk::MemoryPropertyFlags::HOST_VISIBLE
-                | vk::MemoryPropertyFlags::HOST_COHERENT,
+            vk::MemoryPropertyFlags::HOST_VISIBLE | vk::MemoryPropertyFlags::HOST_COHERENT,
             std::mem::size_of::<UniformBufferData>() as u64,
         )?;
         uniform_data.map()?;
 
         unsafe {
-            descriptor_set.bind_buffer(
-                1,
-                &uniform_data.raw,
-                vk::DescriptorType::UNIFORM_BUFFER,
-            );
+            descriptor_set.bind_buffer(1, &uniform_data.raw, vk::DescriptorType::UNIFORM_BUFFER);
             for (texture_index, texture) in textures.iter().enumerate() {
                 descriptor_set.bind_combined_image_sampler(
                     2,
@@ -123,9 +111,7 @@ impl Frame {
         view_projection: nalgebra::Matrix4<f32>,
     ) -> anyhow::Result<()> {
         self.uniform_data.data_mut::<UniformBufferData>().unwrap()[0] =
-            UniformBufferData {
-                view_projection: view_projection.into(),
-            };
+            UniformBufferData { view_projection: view_projection.into() };
         Ok(())
     }
 
@@ -158,11 +144,7 @@ impl Frame {
 }
 
 impl VertexStream for Frame {
-    fn push_vertices(
-        &mut self,
-        vertices: &[Vertex],
-        indices: &[u32],
-    ) -> Result<(), anyhow::Error> {
+    fn push_vertices(&mut self, vertices: &[Vertex], indices: &[u32]) -> Result<(), anyhow::Error> {
         for vertex in vertices {
             self.push_vertex(*vertex)?;
         }
@@ -224,4 +206,3 @@ impl Frame {
         );
     }
 }
-

@@ -5,14 +5,13 @@ use std::{
 
 /// # Safety
 ///
-/// This function is unsafe because it dereferences the pointers in the input slice.
+/// This function is unsafe because it dereferences the pointers in the input
+/// slice.
 ///
 /// # Panics
 ///
 /// This function panics if any of the input pointers are null.
-pub unsafe fn to_os_ptrs(
-    strings: &Vec<*const i8>,
-) -> (Vec<CString>, Vec<*const c_char>) {
+pub unsafe fn to_os_ptrs(strings: &Vec<*const i8>) -> (Vec<CString>, Vec<*const c_char>) {
     let mut c_strings = Vec::with_capacity(strings.len());
     let mut c_ptrs = Vec::with_capacity(strings.len());
 

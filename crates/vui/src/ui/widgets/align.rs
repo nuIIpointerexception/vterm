@@ -4,14 +4,12 @@ use crate::{
     builder_field,
     graphics::triangles::Frame,
     ui::{
-        Input,
-        InternalState,
-        primitives::Dimensions, widgets::{Element, Widget},
+        primitives::Dimensions,
+        widgets::{Element, Widget},
+        Input, InternalState,
     },
     vec2, Vec2,
 };
-
-use super::CompositeStyle;
 
 #[derive(Debug, Copy, Clone)]
 pub enum HAlignment {
@@ -50,13 +48,8 @@ impl<Message, W: Widget<Message>> Align<Message, W> {
     builder_field!(horizontal_alignment, HAlignment);
     builder_field!(vertical_alignment, VAlignment);
 
-    pub fn alignment(
-        self,
-        horizontal: HAlignment,
-        vertical: VAlignment,
-    ) -> Self {
-        self.horizontal_alignment(horizontal)
-            .vertical_alignment(vertical)
+    pub fn alignment(self, horizontal: HAlignment, vertical: VAlignment) -> Self {
+        self.horizontal_alignment(horizontal).vertical_alignment(vertical)
     }
 }
 
@@ -70,11 +63,7 @@ impl<Message: 'static, W: Widget<Message>> Widget<Message> for Align<Message, W>
         self.child.handle_event(internal_state, input, event)
     }
 
-    fn draw_frame(
-        &mut self,
-        internal_state: &mut InternalState,
-        frame: &mut Frame,
-    ) -> Result<()> {
+    fn draw_frame(&mut self, internal_state: &mut InternalState, frame: &mut Frame) -> Result<()> {
         self.child.draw_frame(internal_state, frame)
     }
 
@@ -105,15 +94,8 @@ impl<Message: 'static, W: Widget<Message>> Widget<Message> for Align<Message, W>
         *max_size
     }
 
-    fn set_top_left_position(
-        &mut self,
-        internal_state: &mut InternalState,
-        position: Vec2,
-    ) {
-        self.child.set_top_left_position(
-            internal_state,
-            position + self.child_offset,
-        );
+    fn set_top_left_position(&mut self, internal_state: &mut InternalState, position: Vec2) {
+        self.child.set_top_left_position(internal_state, position + self.child_offset);
     }
 }
 

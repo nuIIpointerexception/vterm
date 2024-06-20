@@ -1,6 +1,5 @@
 use ::anyhow::Result;
 
-use super::CompositeStyle;
 use crate::{
     graphics::triangles::Frame,
     ui::{
@@ -19,31 +18,21 @@ pub struct HSplit<Message> {
 
 impl<Message> HSplit<Message> {
     pub fn new() -> Self {
-        Self {
-            left: None,
-            right: None,
-            midpoint_offset: 0.0,
-        }
+        Self { left: None, right: None, midpoint_offset: 0.0 }
     }
 
     pub fn left<E>(self, element: E) -> Self
     where
         E: Into<Element<Message>>,
     {
-        Self {
-            left: Some(element.into()),
-            ..self
-        }
+        Self { left: Some(element.into()), ..self }
     }
 
     pub fn right<E>(self, element: E) -> Self
     where
         E: Into<Element<Message>>,
     {
-        Self {
-            right: Some(element.into()),
-            ..self
-        }
+        Self { right: Some(element.into()), ..self }
     }
 }
 
@@ -55,27 +44,19 @@ impl<Message: 'static> Widget<Message> for HSplit<Message> {
         event: &winit::event::WindowEvent,
     ) -> Result<Option<Message>> {
         if let Some(elem) = &mut self.left {
-            if let Some(message) =
-                elem.handle_event(internal_state, input, event)?
-            {
+            if let Some(message) = elem.handle_event(internal_state, input, event)? {
                 return Ok(Some(message));
             }
         }
         if let Some(elem) = &mut self.right {
-            if let Some(message) =
-                elem.handle_event(internal_state, input, event)?
-            {
+            if let Some(message) = elem.handle_event(internal_state, input, event)? {
                 return Ok(Some(message));
             }
         }
         Ok(None)
     }
 
-    fn draw_frame(
-        &mut self,
-        internal_state: &mut InternalState,
-        frame: &mut Frame,
-    ) -> Result<()> {
+    fn draw_frame(&mut self, internal_state: &mut InternalState, frame: &mut Frame) -> Result<()> {
         if let Some(elem) = &mut self.left {
             elem.draw_frame(internal_state, frame)?;
         }
@@ -104,20 +85,13 @@ impl<Message: 'static> Widget<Message> for HSplit<Message> {
         *max_size
     }
 
-    fn set_top_left_position(
-        &mut self,
-        internal_state: &mut InternalState,
-        position: Vec2,
-    ) {
+    fn set_top_left_position(&mut self, internal_state: &mut InternalState, position: Vec2) {
         if let Some(elem) = &mut self.left {
-            elem.set_top_left_position(internal_state, position)
+            elem.set_top_left_position(internal_state, position);
         }
 
         if let Some(elem) = &mut self.right {
-            elem.set_top_left_position(
-                internal_state,
-                position + vec2(self.midpoint_offset, 0.0),
-            )
+            elem.set_top_left_position(internal_state, position + vec2(self.midpoint_offset, 0.0))
         }
     }
 }

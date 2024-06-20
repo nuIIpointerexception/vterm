@@ -1,8 +1,9 @@
-
-
 use crate::{
     graphics::{triangles::Frame, Vertex},
-    ui::{color::Color, widgets::{CompositeStyle, Drawable, FillStyle}},
+    ui::{
+        color::Color,
+        widgets::{CompositeStyle, Drawable, FillStyle},
+    },
     vec2, vec3, Vec2,
 };
 
@@ -15,25 +16,20 @@ pub struct Rectangle {
 }
 
 impl Rectangle {
-    /// Creates a new rectangle with the given width, height, position, and depth.
-    /// 
+    /// Creates a new rectangle with the given width, height, position, and
+    /// depth.
+    ///
     /// Args:
     /// - width: f32
     /// - height: f32
     /// - position: Vec2
     /// - depth: f32
     /// - style: CompositeStyle
-    /// 
+    ///
     /// Returns:
     /// - A new rectangle with the given width, height, position, and depth.
     pub fn new(width: f32, height: f32, position: Vec2, depth: f32, style: CompositeStyle) -> Self {
-        Self {
-            width,
-            height,
-            position,
-            depth,
-            style,
-        }
+        Self { width, height, position, depth, style }
     }
 
     /// Draws the rectangle to the frame while applying the style.
@@ -44,10 +40,30 @@ impl Rectangle {
 
         let mut drawable = DrawableRect {
             vertices: vec![
-                Vertex::new(vec3(self.position.x - hw, self.position.y - hh, depth), Color::new(0.0, 0.0, 0.0, 0.0), vec2(0.0, 0.0), 0),
-                Vertex::new(vec3(self.position.x + hw, self.position.y - hh, depth), Color::new(0.0, 0.0, 0.0, 0.0), vec2(1.0, 0.0), 0),
-                Vertex::new(vec3(self.position.x + hw, self.position.y + hh, depth), Color::new(0.0, 0.0, 0.0, 0.0), vec2(1.0, 1.0), 0),
-                Vertex::new(vec3(self.position.x - hw, self.position.y + hh, depth), Color::new(0.0, 0.0, 0.0, 0.0), vec2(0.0, 1.0), 0),
+                Vertex::new(
+                    vec3(self.position.x - hw, self.position.y - hh, depth),
+                    Color::new(0.0, 0.0, 0.0, 0.0),
+                    vec2(0.0, 0.0),
+                    0,
+                ),
+                Vertex::new(
+                    vec3(self.position.x + hw, self.position.y - hh, depth),
+                    Color::new(0.0, 0.0, 0.0, 0.0),
+                    vec2(1.0, 0.0),
+                    0,
+                ),
+                Vertex::new(
+                    vec3(self.position.x + hw, self.position.y + hh, depth),
+                    Color::new(0.0, 0.0, 0.0, 0.0),
+                    vec2(1.0, 1.0),
+                    0,
+                ),
+                Vertex::new(
+                    vec3(self.position.x - hw, self.position.y + hh, depth),
+                    Color::new(0.0, 0.0, 0.0, 0.0),
+                    vec2(0.0, 1.0),
+                    0,
+                ),
             ],
             indices: vec![0, 1, 2, 0, 2, 3],
         };
@@ -79,12 +95,12 @@ impl Drawable for DrawableRect {
             FillStyle::Gradient(gradient) => {
                 let num_vertices = self.vertices.len();
                 for (i, vertex) in self.vertices.iter_mut().enumerate() {
-                    let t = i as f32 / (num_vertices - 1) as f32;
+                    let t = (i as f32) / ((num_vertices - 1) as f32);
                     vertex.rgba = [
-                        gradient.start.r * (1.0 - t) + gradient.end.r * t, 
-                        gradient.start.g * (1.0 - t) + gradient.end.g * t, 
-                        gradient.start.b * (1.0 - t) + gradient.end.b * t, 
-                        gradient.start.a * (1.0 - t) + gradient.end.a * t, 
+                        gradient.start.r * (1.0 - t) + gradient.end.r * t,
+                        gradient.start.g * (1.0 - t) + gradient.end.g * t,
+                        gradient.start.b * (1.0 - t) + gradient.end.b * t,
+                        gradient.start.a * (1.0 - t) + gradient.end.a * t,
                     ];
                 }
             }

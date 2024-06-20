@@ -5,7 +5,6 @@ use crate::errors::{InstanceError, RenderDeviceError, SwapchainError};
 
 #[derive(Error, Debug)]
 pub enum WindowError {
-
     #[error("Vulkan is not supported on this device")]
     VulkanNotSupported,
 
@@ -42,9 +41,7 @@ pub enum WindowError {
 
 #[derive(Debug, Error)]
 pub enum WindowSurfaceError {
-    #[error(
-        "Unable to determine if the device can present images with this queue"
-    )]
+    #[error("Unable to determine if the device can present images with this queue")]
     UnableToCheckPhysicalDeviceSurfaceSupport(#[source] vk::Result),
 
     #[error("Unable to get the surface capabilities for a physical device")]

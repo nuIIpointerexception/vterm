@@ -1,17 +1,13 @@
 use ::anyhow::Result;
 
-pub use self::{sprite::Sprite, vertex::Vertex, rectangle::Rectangle};
+pub use self::{rectangle::Rectangle, sprite::Sprite, vertex::Vertex};
 
+mod rectangle;
 mod sprite;
 mod vertex;
-mod rectangle;
 
 pub mod triangles;
 
 pub trait VertexStream {
-    fn push_vertices(
-        &mut self,
-        vertices: &[Vertex],
-        indices: &[u32],
-    ) -> Result<()>;
+    fn push_vertices(&mut self, vertices: &[Vertex], indices: &[u32]) -> Result<()>;
 }

@@ -4,9 +4,7 @@ use ash::vk;
 
 use crate::{
     errors::PipelineError,
-    vulkan::{
-        descriptor_set::DescriptorSetLayout, render_device::RenderDevice,
-    },
+    vulkan::{descriptor_set::DescriptorSetLayout, render_device::RenderDevice},
 };
 
 pub struct PipelineLayout {
@@ -38,20 +36,14 @@ impl PipelineLayout {
                 .create_pipeline_layout(&pipeline_layout_create_info, None)
                 .map_err(PipelineError::UnableToCreatePipelineLayout)?
         };
-        Ok(Self {
-            raw,
-            descriptor_layouts: descriptor_layouts.to_owned(),
-            vk_dev,
-        })
+        Ok(Self { raw, descriptor_layouts: descriptor_layouts.to_owned(), vk_dev })
     }
 }
 
 impl Drop for PipelineLayout {
     fn drop(&mut self) {
         unsafe {
-            self.vk_dev
-                .logical_device
-                .destroy_pipeline_layout(self.raw, None);
+            self.vk_dev.logical_device.destroy_pipeline_layout(self.raw, None);
         }
     }
 }

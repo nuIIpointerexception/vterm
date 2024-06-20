@@ -4,6 +4,7 @@ description = "backend for vterm / terminal emulation library."
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
+readme.workspace = true
 license.workspace = true
 keywords.workspace = true
 repository.workspace = true

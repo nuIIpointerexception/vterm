@@ -8,14 +8,8 @@ pub struct WindowSurface {
 }
 
 impl WindowSurface {
-    pub fn new(
-        surface_khr: vk::SurfaceKHR,
-        surface_loader: surface::Instance,
-    ) -> Self {
-        Self {
-            loader: surface_loader,
-            khr: surface_khr,
-        }
+    pub fn new(surface_khr: vk::SurfaceKHR, surface_loader: surface::Instance) -> Self {
+        Self { loader: surface_loader, khr: surface_khr }
     }
 
     /// # Safety
@@ -28,14 +22,8 @@ impl WindowSurface {
         queue_family_index: u32,
     ) -> Result<bool, WindowSurfaceError> {
         self.loader
-            .get_physical_device_surface_support(
-                *physical_device,
-                queue_family_index,
-                self.khr,
-            )
-            .map_err(
-                WindowSurfaceError::UnableToCheckPhysicalDeviceSurfaceSupport,
-            )
+            .get_physical_device_surface_support(*physical_device, queue_family_index, self.khr)
+            .map_err(WindowSurfaceError::UnableToCheckPhysicalDeviceSurfaceSupport)
     }
 
     /// # Safety
@@ -60,10 +48,7 @@ impl WindowSurface {
         physical_device: &vk::PhysicalDevice,
     ) -> Vec<vk::PresentModeKHR> {
         self.loader
-            .get_physical_device_surface_present_modes(
-                *physical_device,
-                self.khr,
-            )
+            .get_physical_device_surface_present_modes(*physical_device, self.khr)
             .unwrap_or_else(|_| vec![])
     }
 
@@ -76,10 +61,8 @@ impl WindowSurface {
         physical_device: &vk::PhysicalDevice,
     ) -> Result<vk::SurfaceCapabilitiesKHR, WindowSurfaceError> {
         self.loader
-            .get_physical_device_surface_capabilities(
-                *physical_device,
-                self.khr,
-            ).map_err(WindowSurfaceError::UnableToGetPhysicalDeviceSurfaceCapabilities)
+            .get_physical_device_surface_capabilities(*physical_device, self.khr)
+            .map_err(WindowSurfaceError::UnableToGetPhysicalDeviceSurfaceCapabilities)
     }
 }
 

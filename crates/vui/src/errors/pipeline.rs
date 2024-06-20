@@ -3,9 +3,7 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum PipelineError {
-    #[error(
-        "The shader's source bytes must be evenly divisible into u32 words"
-    )]
+    #[error("The shader's source bytes must be evenly divisible into u32 words")]
     InvalidSourceLengthInShaderSPIRV,
 
     #[error("Improper bytes found in compiled SPIRV shader module source")]

@@ -11,9 +11,7 @@ pub struct Semaphore {
 
 impl Semaphore {
     pub fn new(vk_dev: Arc<RenderDevice>) -> Result<Self, SemaphoreError> {
-        let create_info = vk::SemaphoreCreateInfo {
-            ..Default::default()
-        };
+        let create_info = vk::SemaphoreCreateInfo { ..Default::default() };
         let raw = unsafe {
             vk_dev
                 .logical_device

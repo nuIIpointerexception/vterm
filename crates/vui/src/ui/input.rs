@@ -7,9 +7,7 @@ pub struct Input {
 
 impl Input {
     pub fn new() -> Self {
-        Self {
-            mouse_position: vec2(0.0, 0.0),
-        }
+        Self { mouse_position: vec2(0.0, 0.0) }
     }
 
     pub fn handle_event(&mut self, event: &winit::event::WindowEvent) {

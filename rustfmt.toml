@@ -1,12 +1,14 @@
 unstable_features = true
-max_width = 80
+max_width = 100
 imports_granularity = "Crate"
 group_imports = "StdExternalCrate"
 binop_separator = "Back"
-comment_width = 120
+comment_width = 100
 reorder_imports = true
 tab_spaces = 4
 trailing_semicolon = true
 use_field_init_shorthand = true
 use_small_heuristics = "Max"
 wrap_comments = true
+spaces_around_ranges = true
+newline_style = "Unix"

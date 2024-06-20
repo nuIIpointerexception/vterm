@@ -1,5 +1,19 @@
+# rust
 /target/
 **/*.rs.bk
 /target
+
+# ide
 .idea/
 .vscode/
+
+# javascript
+node_modules/
+bun.lockb
+yarn.lock
+pnpm-lock.yaml
+package-lock.json
+.husky
+
+# other
+.DS_Store

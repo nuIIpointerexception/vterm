@@ -3,12 +3,12 @@ use ::anyhow::Result;
 use crate::{
     graphics::triangles::Frame,
     ui::{
-        primitives::{DimensionList, Dimensions, Justify, Rect, SpaceBetween}, widgets::{Element, Widget}, Input, InternalState
+        primitives::{DimensionList, Dimensions, Justify, SpaceBetween},
+        widgets::{Element, Widget},
+        Input, InternalState,
     },
     Vec2,
 };
-
-use super::CompositeStyle;
 
 pub struct Row<Message> {
     children: Vec<(Element<Message>, Justify)>,
@@ -17,19 +17,11 @@ pub struct Row<Message> {
 
 impl<Message> Row<Message> {
     pub fn new() -> Self {
-        Self {
-            children: vec![],
-            child_dimensions: DimensionList::horizontal(),
-        }
+        Self { children: vec![], child_dimensions: DimensionList::horizontal() }
     }
 
     pub fn space_between(self, space_between: SpaceBetween) -> Self {
-        Self {
-            child_dimensions: self
-                .child_dimensions
-                .space_between(space_between),
-            ..self
-        }
+        Self { child_dimensions: self.child_dimensions.space_between(space_between), ..self }
     }
 
     pub fn child<W>(mut self, child: W, justify: Justify) -> Self
@@ -49,20 +41,14 @@ impl<Message: 'static> Widget<Message> for Row<Message> {
         event: &winit::event::WindowEvent,
     ) -> Result<Option<Message>> {
         for (child, _) in &mut self.children {
-            if let Some(message) =
-                child.handle_event(internal_state, input, event)?
-            {
+            if let Some(message) = child.handle_event(internal_state, input, event)? {
                 return Ok(Some(message));
             }
         }
         Ok(None)
     }
 
-    fn draw_frame(
-        &mut self,
-        internal_state: &mut InternalState,
-        frame: &mut Frame,
-    ) -> Result<()> {
+    fn draw_frame(&mut self, internal_state: &mut InternalState, frame: &mut Frame) -> Result<()> {
         for (child, _) in &mut self.children {
             child.draw_frame(internal_state, frame)?;
         }
@@ -83,26 +69,17 @@ impl<Message: 'static> Widget<Message> for Row<Message> {
         let mut remaining_size = *max_size;
 
         for (child, justify) in &mut self.children {
-            let child_bounds =
-                child.dimensions(internal_state, &remaining_size);
+            let child_bounds = child.dimensions(internal_state, &remaining_size);
 
-            remaining_size = self
-                .child_dimensions
-                .add_child_dimensions(child_bounds, *justify);
+            remaining_size = self.child_dimensions.add_child_dimensions(child_bounds, *justify);
         }
 
         self.child_dimensions.dimensions()
     }
 
-    fn set_top_left_position(
-        &mut self,
-        internal_state: &mut InternalState,
-        position: Vec2,
-    ) {
+    fn set_top_left_position(&mut self, internal_state: &mut InternalState, position: Vec2) {
         let positions = self.child_dimensions.compute_child_positions();
-        for ((child, _), child_pos) in
-            self.children.iter_mut().zip(positions.iter())
-        {
+        for ((child, _), child_pos) in self.children.iter_mut().zip(positions.iter()) {
             child.set_top_left_position(internal_state, position + child_pos);
         }
     }

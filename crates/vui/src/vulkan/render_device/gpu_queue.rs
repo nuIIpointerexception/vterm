@@ -9,11 +9,7 @@ pub struct GpuQueue {
 
 impl GpuQueue {
     pub fn from_raw(queue: vk::Queue, family_id: u32, index: u32) -> Self {
-        Self {
-            queue,
-            family_id,
-            index,
-        }
+        Self { queue, family_id, index }
     }
 
     pub fn is_same(&self, queue: &GpuQueue) -> bool {

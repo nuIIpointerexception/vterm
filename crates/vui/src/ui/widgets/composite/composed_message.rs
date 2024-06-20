@@ -3,7 +3,9 @@ use ::anyhow::Result;
 use crate::{
     graphics::triangles::Frame,
     ui::{
-        primitives::Dimensions, widgets::{CompositeStyle, Element, Widget}, Input, InternalState
+        primitives::Dimensions,
+        widgets::{Element, Widget},
+        Input, InternalState,
     },
     Vec2,
 };
@@ -31,11 +33,7 @@ where
             .map(|opt| opt.map(ComposedMessage::External))
     }
 
-    fn draw_frame(
-        &mut self,
-        internal_state: &mut InternalState,
-        frame: &mut Frame,
-    ) -> Result<()> {
+    fn draw_frame(&mut self, internal_state: &mut InternalState, frame: &mut Frame) -> Result<()> {
         self.0.draw_frame(internal_state, frame)
     }
 
@@ -47,11 +45,7 @@ where
         self.0.dimensions(internal_state, max_size)
     }
 
-    fn set_top_left_position(
-        &mut self,
-        internal_state: &mut InternalState,
-        position: Vec2,
-    ) {
+    fn set_top_left_position(&mut self, internal_state: &mut InternalState, position: Vec2) {
         self.0.set_top_left_position(internal_state, position);
     }
 }

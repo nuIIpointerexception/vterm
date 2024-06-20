@@ -1,6 +1,3 @@
-mod border;
-pub use border::Border;
-
 use crate::ui::color::{Color, Gradient};
 
 #[derive(Clone, Copy)]
@@ -44,10 +41,7 @@ pub struct CompositeStyle {
 
 impl CompositeStyle {
     pub fn new() -> Self {
-        CompositeStyle {
-            background: FillStyle::None,
-            border: FillStyle::None,
-        }
+        CompositeStyle { background: FillStyle::None, border: FillStyle::None }
     }
 
     pub fn with_background(mut self, style: FillStyle) -> Self {

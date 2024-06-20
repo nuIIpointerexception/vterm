@@ -32,16 +32,11 @@ pub const fn id_hash(content: &str, line: u32, column: u32, seed: &str) -> u32 {
 
 #[macro_export]
 macro_rules! gen_id {
-    ($str: literal) => {{
-        let id: u32 = ccthw::ui::id_hash(
-            file!(),
-            line!(),
-            column!(),
-            &format!("{:?}", $str),
-        );
+    ($str:literal) => {{
+        let id: u32 = ccthw::ui::id_hash(file!(), line!(), column!(), &format!("{:?}", $str));
         ccthw::ui::Id::new(id)
     }};
-    ($expr: expr) => {{
+    ($expr:expr) => {{
         let id: u32 = id_hash(file!(), line!(), column!(), $expr);
         Id::new(id)
     }};

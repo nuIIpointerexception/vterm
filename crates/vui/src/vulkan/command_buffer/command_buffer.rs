@@ -22,16 +22,10 @@ impl CommandBuffer {
         command_level: vk::CommandBufferLevel,
     ) -> Result<Self, CommandBufferError> {
         let raw = unsafe { pool.allocate_command_buffer(command_level)? };
-        Ok(Self {
-            raw,
-            vk_dev: pool.vk_dev.clone(),
-            pool,
-        })
+        Ok(Self { raw, vk_dev: pool.vk_dev.clone(), pool })
     }
 
-    pub fn new_primary(
-        pool: Arc<CommandPool>,
-    ) -> Result<Self, CommandBufferError> {
+    pub fn new_primary(pool: Arc<CommandPool>) -> Result<Self, CommandBufferError> {
         Self::new(pool, vk::CommandBufferLevel::PRIMARY)
     }
 

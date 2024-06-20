@@ -38,42 +38,27 @@ impl Buffer {
             ..Default::default()
         };
         let buffer_handle = unsafe {
-            vk_dev
-                .logical_device
-                .create_buffer(&create_info, None)
-                .map_err(|err| BufferError::UnableToCreateBuffer {
+            vk_dev.logical_device.create_buffer(&create_info, None).map_err(|err| {
+                BufferError::UnableToCreateBuffer {
                     size: size_in_bytes,
                     usage: buffer_usage_flags,
                     source: err,
-                })?
+                }
+            })?
         };
         let allocation = unsafe {
-            let buffer_memory_requirements = vk_dev
-                .logical_device
-                .get_buffer_memory_requirements(buffer_handle);
-            vk_alloc.allocate_memory(
-                buffer_memory_requirements,
-                memory_property_flags,
-            )?
+            let buffer_memory_requirements =
+                vk_dev.logical_device.get_buffer_memory_requirements(buffer_handle);
+            vk_alloc.allocate_memory(buffer_memory_requirements, memory_property_flags)?
         };
         unsafe {
             vk_dev
                 .logical_device
-                .bind_buffer_memory(
-                    buffer_handle,
-                    allocation.memory,
-                    allocation.offset,
-                )
+                .bind_buffer_memory(buffer_handle, allocation.memory, allocation.offset)
                 .map_err(BufferError::UnableToBindDeviceMemory)?;
         }
 
-        Ok(Self {
-            raw: buffer_handle,
-            allocation,
-            mapped_ptr: None,
-            vk_alloc,
-            vk_dev,
-        })
+        Ok(Self { raw: buffer_handle, allocation, mapped_ptr: None, vk_alloc, vk_dev })
     }
 
     pub fn map(&mut self) -> Result<(), BufferError> {
@@ -94,9 +79,7 @@ impl Buffer {
 
     pub fn unmap(&mut self) {
         unsafe {
-            self.vk_dev
-                .logical_device
-                .unmap_memory(self.allocation.memory);
+            self.vk_dev.logical_device.unmap_memory(self.allocation.memory);
         }
         self.mapped_ptr = None;
     }
@@ -105,11 +88,8 @@ impl Buffer {
         &self,
     ) -> Result<&'element [Element], BufferError> {
         let ptr = self.mapped_ptr.ok_or(BufferError::NoMappedPointerFound)?;
-        let elements =
-            self.allocation.byte_size as usize / std::mem::size_of::<Element>();
-        let data = unsafe {
-            std::slice::from_raw_parts(ptr as *const Element, elements)
-        };
+        let elements = (self.allocation.byte_size as usize) / std::mem::size_of::<Element>();
+        let data = unsafe { std::slice::from_raw_parts(ptr as *const Element, elements) };
         Ok(data)
     }
 
@@ -117,11 +97,8 @@ impl Buffer {
         &self,
     ) -> Result<&'element mut [Element], BufferError> {
         let ptr = self.mapped_ptr.ok_or(BufferError::NoMappedPointerFound)?;
-        let elements =
-            self.allocation.byte_size as usize / std::mem::size_of::<Element>();
-        let data = unsafe {
-            std::slice::from_raw_parts_mut(ptr as *mut Element, elements)
-        };
+        let elements = (self.allocation.byte_size as usize) / std::mem::size_of::<Element>();
+        let data = unsafe { std::slice::from_raw_parts_mut(ptr as *mut Element, elements) };
         Ok(data)
     }
 }

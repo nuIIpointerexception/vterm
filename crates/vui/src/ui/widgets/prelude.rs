@@ -4,9 +4,8 @@ pub use crate::{
         id::id_hash,
         primitives::{Axis, Justify, SpaceBetween},
         widgets::{
-            Align, Col, Constraint, Container, Element, HAlignment,
-            HSplit, Label, LabelStyle, Row, VAlignment, Widget, Window,
-            WithContainer, Image,
+            Align, Col, Constraint, Container, Element, HAlignment, HSplit, Image, Label,
+            LabelStyle, Row, VAlignment, Widget, Window, WithContainer,
         },
         Font, Id,
     },

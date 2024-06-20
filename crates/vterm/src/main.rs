@@ -1,29 +1,31 @@
 use std::{borrow::BorrowMut, sync::Arc, time::Instant};
 
-use anyhow::{Context, Result};
+use anyhow::{Context, Ok, Result};
 use ash::Entry;
 use log::info;
-#[cfg(debug_assertions)]
 use logger::{initialize_logger, initialize_panic_hook};
 use vui::{
-    asset_loader::{self, AssetLoader}, errors::FrameError, graphics::triangles::Triangles, math::projections, msaa::MSAARenderPass, pipeline::FramePipeline, ui::{primitives::Dimensions, UIState, UI}, vulkan::{
+    asset_loader::AssetLoader,
+    errors::FrameError,
+    graphics::triangles::Triangles,
+    msaa::MSAARenderPass,
+    pipeline::FramePipeline,
+    ui::{primitives::Dimensions, UIState, UI},
+    vulkan::{
         allocator::{create_default_allocator, MemoryAllocator},
         framebuffer::Framebuffer,
         render_device::RenderDevice,
-    }, Mat4
+    },
+    Mat4,
 };
 #[cfg(windows)]
-use windows_sys::Win32::System::Console::{
-    AttachConsole, FreeConsole, ATTACH_PARENT_PROCESS,
-};
+use windows_sys::Win32::System::Console::{AttachConsole, FreeConsole, ATTACH_PARENT_PROCESS};
 use winit::{
     application::ApplicationHandler,
     dpi::PhysicalSize,
     event::{DeviceEvent, DeviceId, StartCause, WindowEvent},
     event_loop::{ActiveEventLoop, ControlFlow, EventLoop},
-    platform::{
-        wayland::EventLoopBuilderExtWayland, x11::EventLoopBuilderExtX11,
-    },
+    platform::{wayland::EventLoopBuilderExtWayland, x11::EventLoopBuilderExtX11},
     window::{Window, WindowId},
 };
 
@@ -34,7 +36,6 @@ use crate::{
 
 mod cli;
 mod lifecycle;
-#[cfg(debug_assertions)]
 mod logger;
 mod terminal;
 
@@ -77,27 +78,19 @@ impl ApplicationHandler for AppState {
             .with_decorations(false)
             .with_visible(true);
         let window = event_loop.create_window(window_attributes).unwrap();
-        let entry = unsafe { Entry::load() }.unwrap();
-        let vk_dev = Arc::new(
-            lifecycle::create_vulkan_device(&window, entry, &self.args)
-                .unwrap(),
-        );
+        let entry = (unsafe { Entry::load() }).unwrap();
+        let vk_dev = Arc::new(lifecycle::create_vulkan_device(&window, entry, &self.args).unwrap());
         let vk_alloc = create_default_allocator(vk_dev.clone());
         let frame_pipeline = FramePipeline::new(vk_dev.clone()).unwrap();
 
-        let msaa_renderpass = MSAARenderPass::for_current_swapchain(
-            vk_dev.clone(),
-            vk_alloc.clone(),
-        )
-        .unwrap();
-        let framebuffers =
-            msaa_renderpass.create_swapchain_framebuffers().unwrap();
+        let msaa_renderpass =
+            MSAARenderPass::for_current_swapchain(vk_dev.clone(), vk_alloc.clone()).unwrap();
+        let framebuffers = msaa_renderpass.create_swapchain_framebuffers().unwrap();
 
-        let mut asset_loader =
-            AssetLoader::new(vk_dev.clone(), vk_alloc.clone()).unwrap();
+        let mut asset_loader = AssetLoader::new(vk_dev.clone(), vk_alloc.clone()).unwrap();
         let (w, h): (u32, u32) = window.inner_size().into();
 
-        let aspect_ratio = w as f32 / h as f32;
+        let aspect_ratio = (w as f32) / (h as f32);
         let width = 10.0;
         let height = width * aspect_ratio;
         self.camera = vui::math::projections::ortho(
@@ -122,8 +115,7 @@ impl ApplicationHandler for AppState {
         .unwrap();
 
         self.window = Some(window);
-        self.last_window_size =
-            Some(self.window.as_ref().unwrap().inner_size());
+        self.last_window_size = Some(self.window.as_ref().unwrap().inner_size());
         self.vk_dev = Some(vk_dev);
         self.vk_alloc = Some(vk_alloc);
         self.frame_pipeline = Some(frame_pipeline);
@@ -134,15 +126,8 @@ impl ApplicationHandler for AppState {
         self.root = Some(root);
     }
 
-    fn window_event(
-        &mut self,
-        event_loop: &ActiveEventLoop,
-        _: WindowId,
-        event: WindowEvent,
-    ) {
-        if let Some(message) =
-            self.root.as_mut().unwrap().handle_event(&event).unwrap()
-        {
+    fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
+        if let Some(message) = self.root.as_mut().unwrap().handle_event(&event).unwrap() {
             self.root.as_mut().unwrap().state_mut().update(&message);
         }
 
@@ -160,19 +145,13 @@ impl ApplicationHandler for AppState {
         }
     }
 
-    fn device_event(
-        &mut self,
-        _: &ActiveEventLoop,
-        _: DeviceId,
-        _event: DeviceEvent,
-    ) {
+    fn device_event(&mut self, _: &ActiveEventLoop, _: DeviceId, _event: DeviceEvent) {
         // TODO: Handle input events
     }
 
     fn about_to_wait(&mut self, _: &ActiveEventLoop) {
         let current_frame_timestamp = Instant::now();
-        let _delta_time =
-            (current_frame_timestamp - self.last_frame_timestamp).as_secs_f32();
+        let _delta_time = (current_frame_timestamp - self.last_frame_timestamp).as_secs_f32();
         self.last_frame_timestamp = current_frame_timestamp;
 
         if self.swapchain_needs_rebuild {
@@ -202,19 +181,15 @@ impl ApplicationHandler for AppState {
 
 impl AppState {
     fn compose_frame(&mut self) -> Result<(), FrameError> {
-        let (index, cmds) =
-            self.frame_pipeline.as_mut().unwrap().begin_frame()?;
+        let (index, cmds) = self.frame_pipeline.as_mut().unwrap().begin_frame()?;
 
         unsafe {
-            self.msaa_renderpass
-                .as_mut()
-                .unwrap()
-                .begin_renderpass_inline(
-                    cmds,
-                    &self.framebuffers[index],
-                    [0.05, 0.05, 0.05, 1.0],
-                    1.0,
-                );
+            self.msaa_renderpass.as_mut().unwrap().begin_renderpass_inline(
+                cmds,
+                &self.framebuffers[index],
+                [0.05, 0.05, 0.05, 1.0],
+                1.0,
+            );
         }
 
         let mut app_frame = self
@@ -227,10 +202,7 @@ impl AppState {
         self.root.as_mut().unwrap().draw_frame(&mut app_frame)?;
 
         unsafe {
-            self.frame_layer
-                .as_mut()
-                .unwrap()
-                .complete_frame(cmds, app_frame, index)?;
+            self.frame_layer.as_mut().unwrap().complete_frame(cmds, app_frame, index)?;
             self.msaa_renderpass.as_mut().unwrap().end_renderpass(cmds);
         }
 
@@ -239,71 +211,56 @@ impl AppState {
 
     fn rebuild_swapchain_resources(&mut self) -> Result<()> {
         unsafe {
-            self.vk_dev
-                .as_mut()
-                .unwrap()
-                .logical_device
-                .device_wait_idle()?;
+            self.vk_dev.as_mut().unwrap().logical_device.device_wait_idle()?;
         }
-        let (w, h): (u32, u32) =
-            self.window.as_ref().unwrap().inner_size().into();
+        let (w, h): (u32, u32) = self.window.as_ref().unwrap().inner_size().into();
         self.vk_dev.as_mut().unwrap().rebuild_swapchain((w, h))?;
-        self.frame_pipeline
-            .as_mut()
-            .unwrap()
-            .rebuild_swapchain_resources()?;
+        self.frame_pipeline.as_mut().unwrap().rebuild_swapchain_resources()?;
 
         self.msaa_renderpass = Some(MSAARenderPass::for_current_swapchain(
             self.vk_dev.as_mut().unwrap().clone(),
             self.vk_alloc.as_mut().unwrap().clone(),
         )?);
-        self.framebuffers = self
-            .msaa_renderpass
-            .as_mut()
-            .unwrap()
-            .create_swapchain_framebuffers()?;
+        self.framebuffers =
+            self.msaa_renderpass.as_mut().unwrap().create_swapchain_framebuffers()?;
         self.frame_layer
             .as_mut()
             .unwrap()
-            .rebuild_swapchain_resources(
-                self.msaa_renderpass.as_mut().unwrap(),
-            )?;
+            .rebuild_swapchain_resources(self.msaa_renderpass.as_mut().unwrap())?;
 
         Ok(())
     }
 }
 
 pub fn setup_environment_variables() {
-    #[cfg(unix)]
-    {
-        let terminfo = "xterm-256color";
-        info!("[setup_environment_variables] terminfo: {terminfo}");
-        std::env::set_var("TERM", terminfo);
+    unsafe {
+        #[cfg(unix)]
+        {
+            let terminfo = "xterm-256color";
+            info!("[setup_environment_variables] terminfo: {terminfo}");
+            std::env::set_var("TERM", terminfo);
+        }
+
+        std::env::set_var("TERM_PROGRAM", "vterm");
+        std::env::set_var("TERM_PROGRAM_VERSION", env!("CARGO_PKG_VERSION"));
+
+        std::env::set_var("COLORTERM", "truecolor");
+        std::env::remove_var("DESKTOP_STARTUP_ID");
+        std::env::remove_var("XDG_ACTIVATION_TOKEN");
     }
-
-    std::env::set_var("TERM_PROGRAM", "vterm");
-    std::env::set_var("TERM_PROGRAM_VERSION", env!("CARGO_PKG_VERSION"));
-
-    std::env::set_var("COLORTERM", "truecolor");
-    std::env::remove_var("DESKTOP_STARTUP_ID");
-    std::env::remove_var("XDG_ACTIVATION_TOKEN");
-
     // TODO(nuii): add env vars from config...
 }
 
-pub fn main() {
-    #[cfg(debug_assertions)]
-    {
-        initialize_logger();
-        initialize_panic_hook();
-    }
+pub fn main() -> Result<()> {
+    let args = Args::parse();
+
+    initialize_logger(&args);
+    initialize_panic_hook();
 
     #[cfg(windows)]
     unsafe {
         AttachConsole(ATTACH_PARENT_PROCESS);
     }
-
-    let args = Args::parse();
 
     #[cfg(target_os = "linux")]
     {
@@ -338,11 +295,13 @@ pub fn main() {
     unsafe {
         FreeConsole();
     }
+
+    Ok(())
 }
 
 fn create_event_loop(args: &Args) -> EventLoop<()> {
     let mut event_loop = EventLoop::builder();
-    match args.window_protocol {
+    _ = match args.window_protocol {
         Some(WindowProtocol::Wayland) => event_loop.with_wayland(),
         Some(WindowProtocol::X11) => event_loop.with_x11(),
         None => &mut event_loop,

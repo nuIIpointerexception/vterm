@@ -20,11 +20,8 @@ impl DescriptorSet {
         buffer: &vk::Buffer,
         descriptor_type: vk::DescriptorType,
     ) {
-        let descriptor_buffer_info = vk::DescriptorBufferInfo {
-            buffer: *buffer,
-            offset: 0,
-            range: vk::WHOLE_SIZE,
-        };
+        let descriptor_buffer_info =
+            vk::DescriptorBufferInfo { buffer: *buffer, offset: 0, range: vk::WHOLE_SIZE };
         let write = vk::WriteDescriptorSet {
             dst_set: self.raw,
             dst_binding: binding,
@@ -36,9 +33,7 @@ impl DescriptorSet {
             p_buffer_info: &descriptor_buffer_info,
             ..Default::default()
         };
-        self.vk_dev
-            .logical_device
-            .update_descriptor_sets(&[write], &[]);
+        self.vk_dev.logical_device.update_descriptor_sets(&[write], &[]);
     }
 
     pub unsafe fn bind_combined_image_sampler(
@@ -62,8 +57,6 @@ impl DescriptorSet {
             p_image_info: &descriptor_image_info,
             ..Default::default()
         };
-        self.vk_dev
-            .logical_device
-            .update_descriptor_sets(&[write], &[]);
+        self.vk_dev.logical_device.update_descriptor_sets(&[write], &[]);
     }
 }

@@ -1,0 +1,17 @@
+{
+    "printWidth": 100,
+    "tabWidth": 4,
+    "useTabs": false,
+    "semi": true,
+    "singleQuote": true,
+    "quoteProps": "as-needed",
+    "bracketSpacing": false,
+    "trailingComma": "all",
+    "endOfLine": "lf",
+    "arrowParens": "always",
+    "jsxSingleQuote": false,
+    "proseWrap": "preserve",
+    "htmlWhitespaceSensitivity": "css",
+    "embeddedLanguageFormatting": "auto",
+    "plugins": ["prettier-plugin-toml", "prettier-plugin-sh"]
+}

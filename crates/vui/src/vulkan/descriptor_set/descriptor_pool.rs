@@ -44,7 +44,7 @@ impl DescriptorPool {
         count: u32,
     ) -> Result<Vec<DescriptorSet>, DescriptorSetError> {
         let mut layouts = vec![];
-        for _ in 0..count {
+        for _ in 0 .. count {
             layouts.push(layout.raw);
         }
         let allocate_info = vk::DescriptorSetAllocateInfo {
@@ -61,10 +61,7 @@ impl DescriptorPool {
         };
         let descriptor_sets: Vec<DescriptorSet> = raw_sets
             .into_iter()
-            .map(|raw| DescriptorSet {
-                raw,
-                vk_dev: self.vk_dev.clone(),
-            })
+            .map(|raw| DescriptorSet { raw, vk_dev: self.vk_dev.clone() })
             .collect();
         Ok(descriptor_sets)
     }
@@ -77,16 +74,15 @@ impl DescriptorPool {
     ) -> Result<Vec<DescriptorSet>, DescriptorSetError> {
         let mut descriptor_set_counts = vec![];
         let mut layouts = vec![];
-        for _ in 0..descriptor_set_count {
+        for _ in 0 .. descriptor_set_count {
             layouts.push(layout.raw);
             descriptor_set_counts.push(variable_binding_count);
         }
-        let variable_descriptor_alloc_info =
-            vk::DescriptorSetVariableDescriptorCountAllocateInfo {
-                descriptor_set_count: layouts.len() as u32,
-                p_descriptor_counts: descriptor_set_counts.as_ptr(),
-                ..Default::default()
-            };
+        let variable_descriptor_alloc_info = vk::DescriptorSetVariableDescriptorCountAllocateInfo {
+            descriptor_set_count: layouts.len() as u32,
+            p_descriptor_counts: descriptor_set_counts.as_ptr(),
+            ..Default::default()
+        };
         let allocate_info = vk::DescriptorSetAllocateInfo {
             p_next: &variable_descriptor_alloc_info
                 as *const vk::DescriptorSetVariableDescriptorCountAllocateInfo
@@ -104,10 +100,7 @@ impl DescriptorPool {
         };
         let descriptor_sets: Vec<DescriptorSet> = raw_sets
             .into_iter()
-            .map(|raw| DescriptorSet {
-                raw,
-                vk_dev: self.vk_dev.clone(),
-            })
+            .map(|raw| DescriptorSet { raw, vk_dev: self.vk_dev.clone() })
             .collect();
         Ok(descriptor_sets)
     }
@@ -116,9 +109,7 @@ impl DescriptorPool {
 impl Drop for DescriptorPool {
     fn drop(&mut self) {
         unsafe {
-            self.vk_dev
-                .logical_device
-                .destroy_descriptor_pool(self.raw, None);
+            self.vk_dev.logical_device.destroy_descriptor_pool(self.raw, None);
         }
     }
 }

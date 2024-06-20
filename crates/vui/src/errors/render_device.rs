@@ -56,19 +56,13 @@ pub enum SwapchainError {
     #[error("Unexpected render device error")]
     UnexpectedRenderDeviceError(#[from] RenderDeviceError),
 
-    #[error(
-        "Unable to drain graphics queue when destroying the old swapchain"
-    )]
+    #[error("Unable to drain graphics queue when destroying the old swapchain")]
     UnableToDrainGraphicsQueue(#[source] vk::Result),
 
-    #[error(
-        "Unable to drain presentation queue when destroying the old swapchain"
-    )]
+    #[error("Unable to drain presentation queue when destroying the old swapchain")]
     UnableToDrainPresentQueue(#[source] vk::Result),
 
-    #[error(
-        "Unable to wait for device idle when destroying the old swapchain"
-    )]
+    #[error("Unable to wait for device idle when destroying the old swapchain")]
     UnableToWaitForDeviceIdle(#[source] vk::Result),
 
     #[error("The swapchain is invalid and needs to be rebuilt")]

@@ -24,25 +24,17 @@ impl DescriptorSetLayout {
 
     pub fn new_with_flags(
         vk_dev: Arc<RenderDevice>,
-        bindings_and_flags: &[(
-            vk::DescriptorSetLayoutBinding,
-            vk::DescriptorBindingFlags,
-        )],
+        bindings_and_flags: &[(vk::DescriptorSetLayoutBinding, vk::DescriptorBindingFlags)],
     ) -> Result<Self, DescriptorSetError> {
-        let flags: Vec<vk::DescriptorBindingFlags> = bindings_and_flags
-            .iter()
-            .map(|(_binding, flag)| *flag)
-            .collect();
-        let bindings: Vec<vk::DescriptorSetLayoutBinding> = bindings_and_flags
-            .iter()
-            .map(|(binding, _flag)| *binding)
-            .collect();
-        let binding_flags_create_info =
-            vk::DescriptorSetLayoutBindingFlagsCreateInfo {
-                binding_count: flags.len() as u32,
-                p_binding_flags: flags.as_ptr(),
-                ..Default::default()
-            };
+        let flags: Vec<vk::DescriptorBindingFlags> =
+            bindings_and_flags.iter().map(|(_binding, flag)| *flag).collect();
+        let bindings: Vec<vk::DescriptorSetLayoutBinding> =
+            bindings_and_flags.iter().map(|(binding, _flag)| *binding).collect();
+        let binding_flags_create_info = vk::DescriptorSetLayoutBindingFlagsCreateInfo {
+            binding_count: flags.len() as u32,
+            p_binding_flags: flags.as_ptr(),
+            ..Default::default()
+        };
         let create_info = vk::DescriptorSetLayoutCreateInfo {
             p_next: &binding_flags_create_info
                 as *const vk::DescriptorSetLayoutBindingFlagsCreateInfo
@@ -65,9 +57,7 @@ impl DescriptorSetLayout {
 impl Drop for DescriptorSetLayout {
     fn drop(&mut self) {
         unsafe {
-            self.vk_dev
-                .logical_device
-                .destroy_descriptor_set_layout(self.raw, None);
+            self.vk_dev.logical_device.destroy_descriptor_set_layout(self.raw, None);
         }
     }
 }

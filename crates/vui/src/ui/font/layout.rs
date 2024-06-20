@@ -25,12 +25,8 @@ impl Font {
                 if let Some(prev_id) = prev_glyph_id {
                     cursor_x += font.kern(prev_id, glyph_id);
                 }
-                let position =
-                    ab_glyph::point(cursor_x.round(), cursor_y.round());
-                glyphs.push(
-                    font.glyph_id(char)
-                        .with_scale_and_position(font.scale(), position),
-                );
+                let position = ab_glyph::point(cursor_x.round(), cursor_y.round());
+                glyphs.push(font.glyph_id(char).with_scale_and_position(font.scale(), position));
                 cursor_x += font.h_advance(glyph_id);
                 prev_glyph_id = Some(glyph_id);
             }

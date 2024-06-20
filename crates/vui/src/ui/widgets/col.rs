@@ -3,14 +3,12 @@ use ::anyhow::Result;
 use crate::{
     graphics::triangles::Frame,
     ui::{
-        Input,
-        InternalState,
-        primitives::{DimensionList, Dimensions, Justify, SpaceBetween}, widgets::{Element, Widget},
+        primitives::{DimensionList, Dimensions, Justify, SpaceBetween},
+        widgets::{Element, Widget},
+        Input, InternalState,
     },
     Vec2,
 };
-
-use super::CompositeStyle;
 
 pub struct Col<Message> {
     children: Vec<Element<Message>>,
@@ -61,11 +59,7 @@ impl<Message: 'static> Widget<Message> for Col<Message> {
         Ok(None)
     }
 
-    fn draw_frame(
-        &mut self,
-        internal_state: &mut InternalState,
-        frame: &mut Frame,
-    ) -> Result<()> {
+    fn draw_frame(&mut self, internal_state: &mut InternalState, frame: &mut Frame) -> Result<()> {
         for child in &mut self.children {
             child.draw_frame(internal_state, frame)?;
         }
@@ -92,11 +86,7 @@ impl<Message: 'static> Widget<Message> for Col<Message> {
         self.child_dimensions.dimensions()
     }
 
-    fn set_top_left_position(
-        &mut self,
-        internal_state: &mut InternalState,
-        position: Vec2,
-    ) {
+    fn set_top_left_position(&mut self, internal_state: &mut InternalState, position: Vec2) {
         let positions = self.child_dimensions.compute_child_positions();
         for (child, child_pos) in self.children.iter_mut().zip(positions.iter()) {
             child.set_top_left_position(internal_state, position + *child_pos);

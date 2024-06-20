@@ -41,11 +41,7 @@ pub trait Widget<Message> {
         event: &winit::event::WindowEvent,
     ) -> Result<Option<Message>>;
 
-    fn draw_frame(
-        &mut self,
-        internal_state: &mut InternalState,
-        frame: &mut Frame,
-    ) -> Result<()>;
+    fn draw_frame(&mut self, internal_state: &mut InternalState, frame: &mut Frame) -> Result<()>;
 
     fn dimensions(
         &mut self,
@@ -53,9 +49,5 @@ pub trait Widget<Message> {
         max_size: &Dimensions,
     ) -> Dimensions;
 
-    fn set_top_left_position(
-        &mut self,
-        internal_state: &mut InternalState,
-        position: Vec2,
-    );
+    fn set_top_left_position(&mut self, internal_state: &mut InternalState, position: Vec2);
 }

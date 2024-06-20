@@ -4,13 +4,13 @@ use ::anyhow::Result;
 
 use crate::{
     graphics::triangles::Frame,
-    Mat4,
     ui::{
-        Input,
-        InternalState,
         primitives::{Dimensions, Rect},
-        ui_screen_space_projection, widgets::{Element, Widget},
-    }, vec2,
+        ui_screen_space_projection,
+        widgets::{Element, Widget},
+        Input, InternalState,
+    },
+    vec2, Mat4,
 };
 
 pub trait UIState {
@@ -53,10 +53,7 @@ impl<C: UIState> UI<C> {
         ui
     }
 
-    pub fn handle_event(
-        &mut self,
-        event: &winit::event::WindowEvent,
-    ) -> Result<Option<C::Message>>
+    pub fn handle_event(&mut self, event: &winit::event::WindowEvent) -> Result<Option<C::Message>>
     where
         C::Message: 'static,
     {
@@ -64,25 +61,17 @@ impl<C: UIState> UI<C> {
 
         self.input.handle_event(event);
         if let WindowEvent::Resized(size) = *event {
-            self.viewport =
-                Rect::new(0.0, 0.0, size.height as f32, size.width as f32);
-            self.projection = ui_screen_space_projection(Dimensions::new(
-                size.width as f32,
-                size.height as f32,
-            ));
-            
+            self.viewport = Rect::new(0.0, 0.0, size.height as f32, size.width as f32);
+            self.projection =
+                ui_screen_space_projection(Dimensions::new(size.width as f32, size.height as f32));
         }
 
-        let message_opt = self.current_view.handle_event(
-            &mut self.internal_state,
-            &self.input,
-            event,
-        )?;
+        let message_opt =
+            self.current_view.handle_event(&mut self.internal_state, &self.input, event)?;
 
         if message_opt.is_some() {
             self.flush();
         } else {
-            println!("No message, layouting.");
             self.layout();
         }
 
@@ -103,19 +92,16 @@ impl<C: UIState> UI<C> {
         let frame_start = std::time::Instant::now();
 
         let _ = frame.set_view_projection(self.projection);
-        self.current_view
-            .draw_frame(&mut self.internal_state, frame)?;
+        self.current_view.draw_frame(&mut self.internal_state, frame)?;
 
         let frame_time = frame_start.elapsed();
         self.frame_times[self.frame_time_index] = frame_time;
-        self.frame_time_index =
-            (self.frame_time_index + 1) % self.frame_times.len();
+        self.frame_time_index = (self.frame_time_index + 1) % self.frame_times.len();
 
         let elapsed_time = frame_start - self.last_fps_draw_time;
         if elapsed_time >= Duration::from_secs(1) {
             let total_frame_time: Duration = self.frame_times.iter().sum();
-            let average_frame_time =
-                total_frame_time / self.frame_times.len() as u32;
+            let average_frame_time = total_frame_time / (self.frame_times.len() as u32);
 
             if average_frame_time.as_secs_f32() > 0.0 {
                 self.fps = 1.0 / average_frame_time.as_secs_f32();
@@ -135,10 +121,8 @@ impl<C: UIState> UI<C> {
     }
 
     fn layout(&mut self) {
-        let _root_widget_dimensions = self
-            .current_view
-            .dimensions(&mut self.internal_state, &self.viewport.dimensions());
-        self.current_view
-            .set_top_left_position(&mut self.internal_state, vec2(0.0, 0.0));
+        let _root_widget_dimensions =
+            self.current_view.dimensions(&mut self.internal_state, &self.viewport.dimensions());
+        self.current_view.set_top_left_position(&mut self.internal_state, vec2(0.0, 0.0));
     }
 }

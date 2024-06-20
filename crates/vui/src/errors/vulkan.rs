@@ -1,11 +1,10 @@
 use thiserror::Error;
 
 use crate::errors::{
-    AllocatorError, BufferError, CommandBufferError, DescriptorSetError,
-    FenceError, FramebufferError, ImageError, InstanceError,
-    PhysicalDeviceError, PipelineError, QueueSelectionError, RenderDeviceError,
-    RenderPassError, SemaphoreError, SwapchainError, VulkanDebugError,
-    WindowSurfaceError,
+    AllocatorError, BufferError, CommandBufferError, DescriptorSetError, FenceError,
+    FramebufferError, ImageError, InstanceError, PhysicalDeviceError, PipelineError,
+    QueueSelectionError, RenderDeviceError, RenderPassError, SemaphoreError, SwapchainError,
+    VulkanDebugError, WindowSurfaceError,
 };
 
 #[derive(Debug, Error)]

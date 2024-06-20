@@ -32,9 +32,7 @@ impl RenderDevice {
             let view = unsafe {
                 self.logical_device
                     .create_image_view(&create_info, None)
-                    .map_err(|err| {
-                        SwapchainError::UnableToCreateSwapchainImageView(i, err)
-                    })?
+                    .map_err(|err| SwapchainError::UnableToCreateSwapchainImageView(i, err))?
             };
             image_views.push(view);
         }

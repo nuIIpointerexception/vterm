@@ -3,9 +3,7 @@ use std::sync::{Arc, Mutex};
 use ash::vk;
 
 use crate::vulkan::{
-    allocator::{
-        Allocation, AllocatorError, ComposableAllocator, MemoryAllocator,
-    },
+    allocator::{Allocation, AllocatorError, ComposableAllocator, MemoryAllocator},
     render_device::RenderDevice,
 };
 
@@ -16,16 +14,11 @@ pub struct LockedMemoryAllocator<Alloc: ComposableAllocator> {
 
 impl<Alloc: ComposableAllocator> LockedMemoryAllocator<Alloc> {
     pub fn new(vk_dev: Arc<RenderDevice>, allocator: Alloc) -> Self {
-        Self {
-            composed_allocator: Mutex::new(allocator),
-            vk_dev,
-        }
+        Self { composed_allocator: Mutex::new(allocator), vk_dev }
     }
 }
 
-impl<Alloc: ComposableAllocator> MemoryAllocator
-    for LockedMemoryAllocator<Alloc>
-{
+impl<Alloc: ComposableAllocator> MemoryAllocator for LockedMemoryAllocator<Alloc> {
     unsafe fn allocate_memory(
         &self,
         memory_requirements: vk::MemoryRequirements,
@@ -42,17 +35,12 @@ impl<Alloc: ComposableAllocator> MemoryAllocator
             .enumerate()
             .find(|(i, memory_type)| {
                 let i = *i as u32;
-                let type_supported =
-                    (memory_requirements.memory_type_bits & (1 << i)) != 0;
-                let properties_supported =
-                    memory_type.property_flags.contains(property_flags);
+                let type_supported = (memory_requirements.memory_type_bits & (1 << i)) != 0;
+                let properties_supported = memory_type.property_flags.contains(property_flags);
                 type_supported && properties_supported
             })
             .map(|(i, _memory_type)| i as u32)
-            .ok_or(AllocatorError::MemoryTypeNotFound(
-                property_flags,
-                memory_requirements,
-            ))?;
+            .ok_or(AllocatorError::MemoryTypeNotFound(property_flags, memory_requirements))?;
 
         let allocate_info = vk::MemoryAllocateInfo {
             memory_type_index,
@@ -67,10 +55,7 @@ impl<Alloc: ComposableAllocator> MemoryAllocator
         allocator.allocate(allocate_info, memory_requirements.alignment)
     }
 
-    unsafe fn free(
-        &self,
-        allocation: &Allocation,
-    ) -> Result<(), AllocatorError> {
+    unsafe fn free(&self, allocation: &Allocation) -> Result<(), AllocatorError> {
         let mut allocator = self
             .composed_allocator
             .lock()

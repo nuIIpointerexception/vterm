@@ -56,12 +56,8 @@ impl DimensionList {
 
     pub fn dimensions(&self) -> Dimensions {
         match self.space_between {
-            SpaceBetween::Fixed(_) => {
-                self.total_children_size
-            }
-            _ => {
-                self.off_axis.min(&self.max_size, &self.total_children_size)
-            }
+            SpaceBetween::Fixed(_) => self.total_children_size,
+            _ => self.off_axis.min(&self.max_size, &self.total_children_size),
         }
     }
 
@@ -72,9 +68,7 @@ impl DimensionList {
     ) -> Dimensions {
         self.children.push((child_dimensions, justify));
 
-        self.total_children_size = self
-            .main_axis
-            .sum(&self.total_children_size, &child_dimensions);
+        self.total_children_size = self.main_axis.sum(&self.total_children_size, &child_dimensions);
 
         if let SpaceBetween::Fixed(size) = self.space_between {
             if self.children.len() > 1 {
@@ -83,17 +77,14 @@ impl DimensionList {
             }
         }
 
-        self.total_children_size = self
-            .off_axis
-            .max(&self.total_children_size, &child_dimensions);
+        self.total_children_size = self.off_axis.max(&self.total_children_size, &child_dimensions);
 
-        self.main_axis
-            .sub(&self.max_size, &self.total_children_size)
+        self.main_axis.sub(&self.max_size, &self.total_children_size)
     }
 
     pub fn compute_child_positions(&self) -> Vec<Vec2> {
-        let main_axis_remaining_size = self.main_axis.get(&self.max_size)
-            - self.main_axis.get(&self.total_children_size);
+        let main_axis_remaining_size =
+            self.main_axis.get(&self.max_size) - self.main_axis.get(&self.total_children_size);
         let main_axis_offset = match self.space_between {
             SpaceBetween::Fixed(size) => self.main_axis.vec2(size),
             SpaceBetween::EvenSpaceBetween => {
@@ -116,20 +107,16 @@ impl DimensionList {
         let mut child_positions = Vec::with_capacity(self.children.len());
         for (child, justify) in &self.children {
             let off_axis_remaining_size =
-                self.off_axis.get(&self.total_children_size)
-                    - self.off_axis.get(child);
+                self.off_axis.get(&self.total_children_size) - self.off_axis.get(child);
             let off_axis_offset = match *justify {
                 Justify::Begin => self.off_axis.vec2(0.0),
                 Justify::End => self.off_axis.vec2(off_axis_remaining_size),
-                Justify::Center => {
-                    self.off_axis.vec2(0.5 * off_axis_remaining_size)
-                }
+                Justify::Center => self.off_axis.vec2(0.5 * off_axis_remaining_size),
             };
 
             child_positions.push(position + off_axis_offset);
 
-            position += main_axis_offset
-                + self.main_axis.vec2(self.main_axis.get(child));
+            position += main_axis_offset + self.main_axis.vec2(self.main_axis.get(child));
         }
 
         child_positions

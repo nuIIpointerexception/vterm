@@ -41,10 +41,8 @@ impl Image {
         let memory_requirements =
             unsafe { vk_dev.logical_device.get_image_memory_requirements(raw) };
 
-        let allocation = unsafe {
-            vk_alloc
-                .allocate_memory(memory_requirements, memory_property_flags)?
-        };
+        let allocation =
+            unsafe { vk_alloc.allocate_memory(memory_requirements, memory_property_flags)? };
 
         unsafe {
             vk_dev
@@ -53,13 +51,7 @@ impl Image {
                 .map_err(ImageError::UnableToBindImageMemory)?;
         }
 
-        Ok(Self {
-            raw,
-            create_info: *create_info,
-            allocation,
-            vk_alloc,
-            vk_dev,
-        })
+        Ok(Self { raw, create_info: *create_info, allocation, vk_alloc, vk_dev })
     }
 }
 
@@ -67,9 +59,7 @@ impl Drop for Image {
     fn drop(&mut self) {
         unsafe {
             self.vk_dev.logical_device.destroy_image(self.raw, None);
-            self.vk_alloc
-                .free(&self.allocation)
-                .expect("unable to free the image's memory");
+            self.vk_alloc.free(&self.allocation).expect("unable to free the image's memory");
         }
     }
 }

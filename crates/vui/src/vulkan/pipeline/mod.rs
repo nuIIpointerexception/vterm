@@ -29,21 +29,10 @@ impl Pipeline {
         let raw = unsafe {
             vk_dev
                 .logical_device
-                .create_graphics_pipelines(
-                    vk::PipelineCache::null(),
-                    &[create_info],
-                    None,
-                )
-                .map_err(|(_, err)| {
-                    PipelineError::UnableToCreateGraphicsPipeline(err)
-                })?[0]
+                .create_graphics_pipelines(vk::PipelineCache::null(), &[create_info], None)
+                .map_err(|(_, err)| PipelineError::UnableToCreateGraphicsPipeline(err))?[0]
         };
-        Ok(Self {
-            pipeline_layout,
-            raw,
-            bind_point: vk::PipelineBindPoint::GRAPHICS,
-            vk_dev,
-        })
+        Ok(Self { pipeline_layout, raw, bind_point: vk::PipelineBindPoint::GRAPHICS, vk_dev })
     }
 }
 

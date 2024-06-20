@@ -33,28 +33,24 @@ impl AssetLoader {
         let mut loader = Self {
             textures: vec![],
             default_sampler: Arc::new(
-                Sampler::linear(vk_dev.clone())
-                    .map_err(VulkanError::ImageError)?,
+                Sampler::linear(vk_dev.clone()).map_err(VulkanError::ImageError)?,
             ),
             staging_buffer: GpuVec::new(
                 vk_dev.clone(),
                 vk_alloc.clone(),
                 vk::BufferUsageFlags::TRANSFER_SRC,
-                (8 * 4) * 512 * 512,
+                8 * 4 * 512 * 512,
             )
             .map_err(VulkanError::BufferError)?,
-            command_pool: OneTimeSubmitCommandPool::new(
-                vk_dev.clone(),
-                &vk_dev.graphics_queue,
-            )
-            .map_err(VulkanError::CommandBufferError)?,
+            command_pool: OneTimeSubmitCommandPool::new(vk_dev.clone(), &vk_dev.graphics_queue)
+                .map_err(VulkanError::CommandBufferError)?,
             vk_alloc,
             vk_dev,
         };
         loader.create_texture_with_data(&[MipmapData {
             width: 1,
             height: 1,
-            data: vec![0xFF, 0xFF, 0xFF, 0xFF],
+            data: vec![0xff, 0xff, 0xff, 0xff],
         }])?;
         Ok(loader)
     }
@@ -67,18 +63,13 @@ impl AssetLoader {
         &mut self,
         mipmaps: &[MipmapData],
     ) -> Result<i32, AssetLoaderError> {
-        let vulkan_image = self.create_empty_2d(
-            mipmaps[0].width,
-            mipmaps[0].height,
-            mipmaps.len() as u32,
-        )?;
+        let vulkan_image =
+            self.create_empty_2d(mipmaps[0].width, mipmaps[0].height, mipmaps.len() as u32)?;
 
         self.staging_buffer.clear();
         for mipmap in mipmaps {
             for byte in &mipmap.data {
-                self.staging_buffer
-                    .push_back(*byte)
-                    .map_err(VulkanError::BufferError)?;
+                self.staging_buffer.push_back(*byte).map_err(VulkanError::BufferError)?;
             }
         }
 
@@ -177,26 +168,25 @@ impl AssetLoader {
             )
             .map_err(VulkanError::ImageError)?,
         );
-        let texture =
-            CombinedImageSampler::new(image_view, self.default_sampler.clone());
+        let texture = CombinedImageSampler::new(image_view, self.default_sampler.clone());
         self.textures.push(texture.clone());
 
         Ok((self.textures.len() - 1) as i32)
     }
 
-    pub fn read_texture<T>(
-        &mut self,
-        path_to_texture_image: T,
-    ) -> Result<i32, AssetLoaderError>
+    pub fn read_texture<T>(&mut self, path_to_texture_image: T) -> Result<i32, AssetLoaderError>
     where
         T: AsRef<Path>,
     {
-        let loaded = Reader::open(path_to_texture_image)?.decode()?;
+        let loaded = Reader::open(path_to_texture_image)
+            .map_err(|_| AssetLoaderError::ImageNotFound)?
+            .decode()
+            .map_err(|err| AssetLoaderError::UnableToDecodeImage(err))?;
         let rgba = loaded.into_rgba8();
         let (width, height) = (rgba.width(), rgba.height());
 
         let mipmap_count = Self::compute_mipmap_count(width, height);
-        let mipmaps: Vec<_> = (0..mipmap_count)
+        let mipmaps: Vec<_> = (0 .. mipmap_count)
             .map(|i| {
                 let mipmap = imageops::resize(
                     &rgba,
@@ -227,17 +217,12 @@ impl AssetLoader {
             flags: vk::ImageCreateFlags::empty(),
             image_type: vk::ImageType::TYPE_2D,
             format: vk::Format::R8G8B8A8_SRGB,
-            extent: vk::Extent3D {
-                width,
-                height,
-                depth: 1,
-            },
+            extent: vk::Extent3D { width, height, depth: 1 },
             mip_levels,
             array_layers: 1,
             samples: vk::SampleCountFlags::TYPE_1,
             tiling: vk::ImageTiling::OPTIMAL,
-            usage: vk::ImageUsageFlags::TRANSFER_DST
-                | vk::ImageUsageFlags::SAMPLED,
+            usage: vk::ImageUsageFlags::TRANSFER_DST | vk::ImageUsageFlags::SAMPLED,
             sharing_mode: vk::SharingMode::EXCLUSIVE,
             ..Default::default()
         };

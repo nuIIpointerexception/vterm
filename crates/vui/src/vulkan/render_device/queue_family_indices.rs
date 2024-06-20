@@ -19,9 +19,8 @@ impl QueueFamilyIndices {
         physical_device: &vk::PhysicalDevice,
         window_surface: &WindowSurface,
     ) -> Result<Self, QueueSelectionError> {
-        let queue_families = unsafe {
-            ash.get_physical_device_queue_family_properties(*physical_device)
-        };
+        let queue_families =
+            unsafe { ash.get_physical_device_queue_family_properties(*physical_device) };
 
         let mut graphics_family = None;
         let mut present_family = None;
@@ -32,35 +31,26 @@ impl QueueFamilyIndices {
             }
 
             let present_support = unsafe {
-                window_surface.get_physical_device_surface_support(
-                    &physical_device,
-                    i as u32,
-                )
+                window_surface.get_physical_device_surface_support(&physical_device, i as u32)
             };
             match present_support {
                 Ok(true) => {
                     present_family = Some(i as u32);
                 }
                 Err(ref error) => {
-                    log::warn!(
-                        "Error while checking surface support for device: {:?}",
-                        error
-                    );
+                    log::warn!("Error while checking surface support for device: {:?}", error);
                 }
                 _ => {}
             }
         });
 
-        let graphics_family_index = graphics_family
-            .ok_or(QueueSelectionError::UnableToFindGraphicsQueue)?;
+        let graphics_family_index =
+            graphics_family.ok_or(QueueSelectionError::UnableToFindGraphicsQueue)?;
 
-        let present_family_index = present_family
-            .ok_or(QueueSelectionError::UnableToFindPresentQueue)?;
+        let present_family_index =
+            present_family.ok_or(QueueSelectionError::UnableToFindPresentQueue)?;
 
-        Ok(Self {
-            graphics_family_index,
-            present_family_index,
-        })
+        Ok(Self { graphics_family_index, present_family_index })
     }
 
     pub fn as_queue_create_infos(&self) -> Vec<vk::DeviceQueueCreateInfo> {
@@ -83,27 +73,17 @@ impl QueueFamilyIndices {
         create_infos
     }
 
-    pub fn get_queues(
-        &self,
-        logical_device: &ash::Device,
-    ) -> (GpuQueue, GpuQueue) {
-        let raw_graphics_queue = unsafe {
-            logical_device.get_device_queue(self.graphics_family_index, 0)
-        };
-        let graphics_queue = GpuQueue::from_raw(
-            raw_graphics_queue,
-            self.graphics_family_index,
-            0,
-        );
+    pub fn get_queues(&self, logical_device: &ash::Device) -> (GpuQueue, GpuQueue) {
+        let raw_graphics_queue =
+            unsafe { logical_device.get_device_queue(self.graphics_family_index, 0) };
+        let graphics_queue = GpuQueue::from_raw(raw_graphics_queue, self.graphics_family_index, 0);
 
-        let is_same_family =
-            self.graphics_family_index == self.present_family_index;
+        let is_same_family = self.graphics_family_index == self.present_family_index;
         let present_queue = if is_same_family {
             graphics_queue
         } else {
-            let raw_present_queue = unsafe {
-                logical_device.get_device_queue(self.present_family_index, 0)
-            };
+            let raw_present_queue =
+                unsafe { logical_device.get_device_queue(self.present_family_index, 0) };
             GpuQueue::from_raw(raw_present_queue, self.present_family_index, 0)
         };
 

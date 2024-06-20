@@ -1,15 +1,13 @@
-use std::{collections::HashMap, f64::consts::FRAC_PI_4, fs::File, io::Read};
+use std::{collections::HashMap, fs::File, io::Read};
 
 use ab_glyph::{Font as AbFont, FontArc, GlyphId, PxScaleFont, ScaleFont};
 use anyhow::Result;
-use nalgebra::Matrix2;
 
 use super::color::Color;
 use crate::{
     asset_loader::AssetLoader,
     builder_field,
     ui::primitives::{Rect, Tile},
-    vec4, Vec4,
 };
 
 mod layout;
@@ -54,11 +52,7 @@ pub struct FontFamily {
 }
 
 impl FontFamily {
-    pub fn new(
-        config: FontConfig,
-        scale: f32,
-        asset_loader: &mut AssetLoader,
-    ) -> Result<Self> {
+    pub fn new(config: FontConfig, scale: f32, asset_loader: &mut AssetLoader) -> Result<Self> {
         Ok(Self {
             regular: Font::from_file(
                 config.regular,
@@ -103,8 +97,11 @@ enum FontWeight {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum FontStyle {
     Regular,
+    #[allow(dead_code)]
     Italic,
+    #[allow(dead_code)]
     Strikethrough,
+    #[allow(dead_code)]
     Underline,
 }
 
@@ -134,18 +131,10 @@ impl Font {
                 buffer
             }
             None => match weight {
-                FontWeight::Regular => {
-                    include_bytes!("default/Roobert-Regular.ttf").to_vec()
-                }
-                FontWeight::Bold => {
-                    include_bytes!("default/Roobert-Bold.ttf").to_vec()
-                }
-                FontWeight::Light => {
-                    include_bytes!("default/Roobert-Light.ttf").to_vec()
-                }
-                FontWeight::Medium => {
-                    include_bytes!("default/Roobert-Medium.ttf").to_vec()
-                }
+                FontWeight::Regular => include_bytes!("default/Roobert-Regular.ttf").to_vec(),
+                FontWeight::Bold => include_bytes!("default/Roobert-Bold.ttf").to_vec(),
+                FontWeight::Light => include_bytes!("default/Roobert-Light.ttf").to_vec(),
+                FontWeight::Medium => include_bytes!("default/Roobert-Medium.ttf").to_vec(),
             },
         };
         let italic_angle = match style {
@@ -153,24 +142,12 @@ impl Font {
             _ => 0.0,
         };
         let font = FontArc::try_from_vec(bytes)?;
-        Self::from_ab_glyph_font(
-            font.into_scaled(scale),
-            asset_loader,
-            italic_angle,
-        )
+        Self::from_ab_glyph_font(font.into_scaled(scale), asset_loader, italic_angle)
     }
 
-    pub fn rescale(
-        &mut self,
-        scale: f32,
-        asset_loader: &mut AssetLoader,
-    ) -> Result<()> {
+    pub fn rescale(&mut self, scale: f32, asset_loader: &mut AssetLoader) -> Result<()> {
         let rescaled_font = self.font.clone().with_scale(scale);
-        let font = Self::from_ab_glyph_font(
-            rescaled_font,
-            asset_loader,
-            self.italic_angle,
-        )?;
+        let font = Self::from_ab_glyph_font(rescaled_font, asset_loader, self.italic_angle)?;
         self.font = font.font;
         self.texture_index = font.texture_index;
         self.glyph_texture_coords = font.glyph_texture_coords;
@@ -182,18 +159,12 @@ impl Font {
         asset_loader: &mut AssetLoader,
         italic_angle: f32,
     ) -> Result<Self> {
-        let glyphs = Self::layout_chars(
-            &font,
-            10,
-            2048,
-            font.codepoint_ids().map(|(_id, char)| char),
-        );
+        let glyphs =
+            Self::layout_chars(&font, 10, 2048, font.codepoint_ids().map(|(_id, char)| char));
 
-        let (rasterized_glyphs, glyph_texture_coords) =
-            Self::rasterize_glyphs(&font, &glyphs);
+        let (rasterized_glyphs, glyph_texture_coords) = Self::rasterize_glyphs(&font, &glyphs);
 
-        let texture_index =
-            asset_loader.create_texture_with_data(&[rasterized_glyphs])?;
+        let texture_index = asset_loader.create_texture_with_data(&[rasterized_glyphs])?;
 
         Ok(Self {
             font,
@@ -215,9 +186,7 @@ impl Font {
         glyphs
             .into_iter()
             .filter_map(|glyph| {
-                self.font
-                    .outline_glyph(glyph.clone())
-                    .map(|outline| (glyph, outline))
+                self.font.outline_glyph(glyph.clone()).map(|outline| (glyph, outline))
             })
             .filter_map(|(glyph, outline)| {
                 self.glyph_texture_coords
@@ -251,7 +220,8 @@ impl Font {
     }
 
     /// Calculates the bounds of the text.
-    /// We use it to calculate the width and height of the text for the background or so.
+    /// We use it to calculate the width and height of the text for the
+    /// background or so.
     pub fn calculate_text_bounds<T>(&self, content: T) -> Rect
     where
         T: AsRef<str>,
@@ -262,9 +232,7 @@ impl Font {
         glyphs
             .into_iter()
             .filter_map(|glyph| {
-                self.font
-                    .outline_glyph(glyph.clone())
-                    .map(|outline| (glyph, outline))
+                self.font.outline_glyph(glyph.clone()).map(|outline| (glyph, outline))
             })
             .for_each(|(glyph, _outline)| {
                 let glyph_bounds: Rect = self.font.glyph_bounds(&glyph).into();

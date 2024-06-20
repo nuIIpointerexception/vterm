@@ -28,10 +28,7 @@ impl Dimensions {
 
 impl Into<Dimensions> for Vec2 {
     fn into(self) -> Dimensions {
-        Dimensions {
-            width: self.x,
-            height: self.y,
-        }
+        Dimensions { width: self.x, height: self.y }
     }
 }
 
@@ -43,18 +40,12 @@ impl Into<Vec2> for Dimensions {
 
 impl Into<Dimensions> for (i32, i32) {
     fn into(self) -> Dimensions {
-        Dimensions {
-            width: self.0 as f32,
-            height: self.1 as f32,
-        }
+        Dimensions { width: self.0 as f32, height: self.1 as f32 }
     }
 }
 
 impl Into<Dimensions> for (f32, f32) {
     fn into(self) -> Dimensions {
-        Dimensions {
-            width: self.0,
-            height: self.1,
-        }
+        Dimensions { width: self.0, height: self.1 }
     }
 }

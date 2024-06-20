@@ -8,7 +8,7 @@ use crate::{
     msaa::MSAARenderPass,
     vulkan::{
         descriptor_set::DescriptorSetLayout,
-        pipeline::{layout::PipelineLayout, Pipeline, shader::ShaderModule},
+        pipeline::{layout::PipelineLayout, shader::ShaderModule, Pipeline},
         render_device::RenderDevice,
     },
 };
@@ -19,17 +19,11 @@ pub(super) fn create_pipeline(
     enable_depth_testing: bool,
     vk_dev: Arc<RenderDevice>,
 ) -> Result<Pipeline, VulkanError> {
-    let vertex_module = ShaderModule::from_spirv(
-        vk_dev.clone(),
-        include_bytes!("shaders/passthrough.vert.spirv"),
-    )?;
-    let fragment_module = ShaderModule::from_spirv(
-        vk_dev.clone(),
-        include_bytes!("shaders/passthrough.frag.spirv"),
-    )?;
-    let vertex_input_state = vk::PipelineVertexInputStateCreateInfo {
-        ..Default::default()
-    };
+    let vertex_module =
+        ShaderModule::from_spirv(vk_dev.clone(), include_bytes!("shaders/passthrough.vert.spirv"))?;
+    let fragment_module =
+        ShaderModule::from_spirv(vk_dev.clone(), include_bytes!("shaders/passthrough.frag.spirv"))?;
+    let vertex_input_state = vk::PipelineVertexInputStateCreateInfo { ..Default::default() };
     let input_assembly = vk::PipelineInputAssemblyStateCreateInfo {
         topology: vk::PrimitiveTopology::TRIANGLE_LIST,
         primitive_restart_enable: 0,
@@ -46,10 +40,7 @@ pub(super) fn create_pipeline(
     };
     let scissors = vk::Rect2D {
         offset: vk::Offset2D { x: 0, y: 0 },
-        extent: vk::Extent2D {
-            width: extent.width,
-            height: extent.height,
-        },
+        extent: vk::Extent2D { width: extent.width, height: extent.height },
     };
     let viewport_state = vk::PipelineViewportStateCreateInfo {
         p_viewports: &viewport,
@@ -75,10 +66,10 @@ pub(super) fn create_pipeline(
         ..Default::default()
     };
     let blend_attachment = vk::PipelineColorBlendAttachmentState {
-        color_write_mask: vk::ColorComponentFlags::R
-            | vk::ColorComponentFlags::G
-            | vk::ColorComponentFlags::B
-            | vk::ColorComponentFlags::A,
+        color_write_mask: vk::ColorComponentFlags::R |
+            vk::ColorComponentFlags::G |
+            vk::ColorComponentFlags::B |
+            vk::ColorComponentFlags::A,
         blend_enable: 1,
         src_color_blend_factor: vk::BlendFactor::SRC_ALPHA,
         dst_color_blend_factor: vk::BlendFactor::ONE_MINUS_SRC_ALPHA,
@@ -92,11 +83,7 @@ pub(super) fn create_pipeline(
         attachment_count: 1,
         ..Default::default()
     };
-    let depth_enabled = if enable_depth_testing {
-        vk::TRUE
-    } else {
-        vk::FALSE
-    };
+    let depth_enabled = if enable_depth_testing { vk::TRUE } else { vk::FALSE };
     let depth_stencil_state = vk::PipelineDepthStencilStateCreateInfo {
         flags: vk::PipelineDepthStencilStateCreateFlags::empty(),
         depth_test_enable: depth_enabled,
@@ -146,11 +133,7 @@ pub(super) fn create_pipeline(
             ),
         ],
     )?);
-    let pipeline_layout = Arc::new(PipelineLayout::new(
-        vk_dev.clone(),
-        &[descriptor_layout],
-        &[],
-    )?);
+    let pipeline_layout = Arc::new(PipelineLayout::new(vk_dev.clone(), &[descriptor_layout], &[])?);
     let pipeline_create_info = vk::GraphicsPipelineCreateInfo {
         p_stages: stages.as_ptr(),
         stage_count: stages.len() as u32,
@@ -165,9 +148,5 @@ pub(super) fn create_pipeline(
         layout: pipeline_layout.raw,
         ..Default::default()
     };
-    Ok(Pipeline::new_graphics_pipeline(
-        pipeline_create_info,
-        pipeline_layout,
-        vk_dev.clone(),
-    )?)
+    Ok(Pipeline::new_graphics_pipeline(pipeline_create_info, pipeline_layout, vk_dev.clone())?)
 }

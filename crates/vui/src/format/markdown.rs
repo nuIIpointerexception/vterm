@@ -3,8 +3,8 @@ use std::fmt;
 pub struct MdList<'data, T>(pub &'data [T]);
 
 impl<'data, T> fmt::Debug for MdList<'data, T>
-    where
-        T: fmt::Debug,
+where
+    T: fmt::Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str("\n")?;
@@ -20,8 +20,8 @@ impl<'data, T> fmt::Debug for MdList<'data, T>
 }
 
 impl<'data, T> fmt::Display for MdList<'data, T>
-    where
-        T: fmt::Display,
+where
+    T: fmt::Display,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str("\n")?;

@@ -8,9 +8,7 @@ pub enum BufferError {
     #[error("Unable to map device memory")]
     UnableToMapDeviceMemory(#[source] vk::Result),
 
-    #[error(
-        "Device memory pointer was not found, did you try calling .map()?"
-    )]
+    #[error("Device memory pointer was not found, did you try calling .map()?")]
     NoMappedPointerFound,
 
     #[error(
@@ -18,11 +16,7 @@ pub enum BufferError {
         .size,
         .usage
     )]
-    UnableToCreateBuffer {
-        size: u64,
-        usage: vk::BufferUsageFlags,
-        source: vk::Result,
-    },
+    UnableToCreateBuffer { size: u64, usage: vk::BufferUsageFlags, source: vk::Result },
 
     #[error(transparent)]
     UnableToAllocateBufferMemory(#[from] AllocatorError),

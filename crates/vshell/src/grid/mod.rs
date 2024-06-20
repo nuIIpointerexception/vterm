@@ -24,18 +24,13 @@ impl Grid {
         let mut rows = Vec::with_capacity(lines);
         rows.resize(lines, Row::new(columns));
 
-        Self {
-            rows,
-            index: 0,
-            scrollback: vec![],
-            columns,
-        }
+        Self { rows, index: 0, scrollback: vec![], columns }
     }
 
     /// Scrolls the grid up by one
     pub fn scroll_up(&mut self) {
         let len = self.rows.len();
-        for i in 1..len {
+        for i in 1 .. len {
             self.rows.swap(i - 1, i);
         }
         self.scrollback.push(self.rows[len - 1].clone());
@@ -45,7 +40,7 @@ impl Grid {
     /// Scrolls the grid down by one, taking the last row from the scrollback
     pub fn scroll_down(&mut self) {
         let len = self.rows.len();
-        for i in (1..len).rev() {
+        for i in (1 .. len).rev() {
             self.rows.swap(i - 1, i);
         }
         if !self.scrollback.is_empty() {
@@ -65,10 +60,7 @@ impl Grid {
         for row in &self.rows {
             for col in &row.inner {
                 if col.style != current_style {
-                    res.push(TextSection {
-                        text: text.clone(),
-                        style: current_style,
-                    });
+                    res.push(TextSection { text: text.clone(), style: current_style });
                     text = "".to_string();
                     current_style = col.style;
                 }
@@ -82,10 +74,7 @@ impl Grid {
         }
 
         if !text.is_empty() {
-            let ts = TextSection {
-                text: text.clone(),
-                style: current_style,
-            };
+            let ts = TextSection { text: text.clone(), style: current_style };
             res.push(ts);
         }
 
@@ -98,8 +87,7 @@ impl Grid {
         let mut current_column_index = 0;
 
         // Flatten all cells from existing rows into a single vector
-        let all_cells: Vec<Cell> =
-            self.rows.iter().flat_map(|r| r.inner.clone()).collect();
+        let all_cells: Vec<Cell> = self.rows.iter().flat_map(|r| r.inner.clone()).collect();
 
         let mut advance = false;
         // Wrap cells into new rows based on the new column width
@@ -138,7 +126,8 @@ impl Grid {
             new_rows.push(current_row);
         }
 
-        // If the new size has more lines than the current content, add empty rows
+        // If the new size has more lines than the current content, add empty
+        // rows
         while new_rows.len() < new_lines {
             new_rows.push(Row::new(new_columns));
         }
@@ -148,12 +137,8 @@ impl Grid {
         self.columns = new_columns; // Update the column count
     }
 
-    fn print_vec(
-        &self,
-        v: &[Row],
-        f: &mut std::fmt::Formatter,
-    ) -> std::fmt::Result {
-        for _ in 0..self.columns {
+    fn print_vec(&self, v: &[Row], f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        for _ in 0 .. self.columns {
             write!(f, "_")?;
         }
 
@@ -171,7 +156,7 @@ impl Grid {
             writeln!(f, "|")?;
         }
 
-        for _ in 0..self.columns {
+        for _ in 0 .. self.columns {
             write!(f, "-")?;
         }
 

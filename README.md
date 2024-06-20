@@ -5,24 +5,25 @@
 ### The project is not usable in its current state and is subject to change a lot.
 
 ### Project Status
-- [x] Windowing
-- [x] Rendering pipeline
-- [x] Image drawing
-- [x] Font drawing
-- [x] Custom font loading
-- [ ] Layouting for UI layer (Bugged right now)
-- [ ] Ptty
-- [ ] Handle input
-- [ ] Terminal buffer to screen
-- [ ] Tabs
-- [ ] Draggable / multi window
-- [ ] Menus, settings
-- [ ] Config
+
+-   [x] Windowing
+-   [x] Rendering pipeline
+-   [x] Image drawing
+-   [x] Font drawing
+-   [x] Custom font loading
+-   [ ] Layouting for UI layer (Bugged right now)
+-   [ ] Ptty
+-   [ ] Handle input
+-   [ ] Terminal buffer to screen
+-   [ ] Tabs
+-   [ ] Draggable / multi window
+-   [ ] Menus, settings
+-   [ ] Config
 
 ## Dependencies
 
-- Vulkan SDK
-- Rust nightly
+-   Vulkan SDK
+-   Rust nightly
 
 ## Installation
 

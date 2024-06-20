@@ -3,12 +3,12 @@ members = ["crates/vui", "crates/vterm", "crates/vshell", "crates/vtty"]
 default-members = ["crates/vterm"]
 resolver = "2"
 
-
 [workspace.package]
 version = "0.1.0"
 authors = ["nuii <contact@viable.gg>"]
 edition = "2021"
-license = "GPL-3.0-or-later"
+license = "MPL-2.0"
+readme = "README.md"
 keywords = ["graphics", "terminal"]
 repository = "https://github.com/viablegg/vterm"
 homepage = "https://viable.gg/vterm"
@@ -19,7 +19,7 @@ vui = { path = "crates/vui" }
 vshell = { path = "crates/vshell" }
 vtty = { path = "crates/vtty" }
 ab_glyph = "0.2.26"
-winit = "0.30.1"
+winit = { version = "0.30.2", default-features = false, features = ["rwh_06"] }
 anyhow = "1.0.44"
 log = "0.4.13"
 ash = { version = "0.38.0", features = ["linked"] }
@@ -29,20 +29,18 @@ memoffset = "*"
 thiserror = "1.0.29"
 image = "0.25.1"
 bitflags = "2.5.0"
+fs_extra = "1.3.0"
 
-[profile.dev]
-opt-level = 0
-debug = true
-debug-assertions = true
-overflow-checks = false
-lto = false
-codegen-units = 16
-incremental = true
-rpath = false
+libc = "0.2.155"
+dirs = "5.0.1"
+mio = "1.0.0"
+signal-hook = "0.3.10"
+iovec = "0.1.1"
 
 [profile.release]
 opt-level = "z"
-lto = true
+lto = "thin"
+debug = 1
 codegen-units = 1
 panic = "abort"
 strip = true

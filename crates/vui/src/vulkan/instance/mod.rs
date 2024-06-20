@@ -1,4 +1,4 @@
-use ash::{Entry, khr::swapchain, vk};
+use ash::{khr::swapchain, vk, Entry};
 
 use crate::errors::InstanceError;
 
@@ -8,14 +8,8 @@ pub struct Instance {
 }
 
 impl Instance {
-    pub fn new(
-        instance: ash::Instance,
-        entry: &Entry,
-    ) -> Result<Self, InstanceError> {
-        Ok(Self {
-            ash: instance,
-            entry: entry.clone(),
-        })
+    pub fn new(instance: ash::Instance, entry: &Entry) -> Result<Self, InstanceError> {
+        Ok(Self { ash: instance, entry: entry.clone() })
     }
 
     pub fn create_logical_device(
@@ -24,8 +18,7 @@ impl Instance {
         queue_create_infos: &[vk::DeviceQueueCreateInfo],
     ) -> Result<ash::Device, InstanceError> {
         let extensions = vec![swapchain::NAME.as_ptr()];
-        let features =
-            vk::PhysicalDeviceFeatures::default().fill_mode_non_solid(true);
+        let features = vk::PhysicalDeviceFeatures::default().fill_mode_non_solid(true);
         let mut vk_11_features = vk::PhysicalDeviceVulkan11Features::default()
             .uniform_and_storage_buffer16_bit_access(true);
 

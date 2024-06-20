@@ -22,21 +22,19 @@ impl Framebuffer {
         vk_dev: Arc<RenderDevice>,
         render_pass: &Arc<RenderPass>,
     ) -> Result<Vec<Self>, FramebufferError> {
-        vk_dev.with_swapchain(
-            |swapchain| -> Result<Vec<Self>, FramebufferError> {
-                let mut framebuffers = vec![];
-                for i in 0..swapchain.image_views.len() {
-                    let framebuffer = Self::with_attachments(
-                        vk_dev.clone(),
-                        render_pass,
-                        &[swapchain.image_views[i]],
-                        swapchain.extent,
-                    )?;
-                    framebuffers.push(framebuffer);
-                }
-                Ok(framebuffers)
-            },
-        )
+        vk_dev.with_swapchain(|swapchain| -> Result<Vec<Self>, FramebufferError> {
+            let mut framebuffers = vec![];
+            for i in 0 .. swapchain.image_views.len() {
+                let framebuffer = Self::with_attachments(
+                    vk_dev.clone(),
+                    render_pass,
+                    &[swapchain.image_views[i]],
+                    swapchain.extent,
+                )?;
+                framebuffers.push(framebuffer);
+            }
+            Ok(framebuffers)
+        })
     }
 
     pub fn with_attachments(
@@ -61,21 +59,14 @@ impl Framebuffer {
                 .create_framebuffer(&create_info, None)
                 .map_err(FramebufferError::UnableToCreateFramebuffer)?
         };
-        Ok(Self {
-            raw,
-            extent,
-            render_pass: render_pass.clone(),
-            vk_dev,
-        })
+        Ok(Self { raw, extent, render_pass: render_pass.clone(), vk_dev })
     }
 }
 
 impl Drop for Framebuffer {
     fn drop(&mut self) {
         unsafe {
-            self.vk_dev
-                .logical_device
-                .destroy_framebuffer(self.raw, None);
+            self.vk_dev.logical_device.destroy_framebuffer(self.raw, None);
         }
     }
 }

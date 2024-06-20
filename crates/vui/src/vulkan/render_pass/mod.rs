@@ -1,5 +1,4 @@
 use ::std::sync::Arc;
-
 use ash::vk;
 
 use crate::{errors::RenderPassError, vulkan::render_device::RenderDevice};
@@ -27,9 +26,7 @@ impl RenderPass {
 impl Drop for RenderPass {
     fn drop(&mut self) {
         unsafe {
-            self.vk_dev
-                .logical_device
-                .destroy_render_pass(self.raw, None);
+            self.vk_dev.logical_device.destroy_render_pass(self.raw, None);
         }
     }
 }

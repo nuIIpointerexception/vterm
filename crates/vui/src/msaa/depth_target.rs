@@ -7,7 +7,7 @@ use crate::{
     msaa::{MSAAError, MSAARenderPass},
     vulkan::{
         allocator::MemoryAllocator,
-        image::{Image, view::ImageView},
+        image::{view::ImageView, Image},
         render_device::RenderDevice,
     },
 };
@@ -36,8 +36,8 @@ impl MSAARenderPass {
             samples: msaa_render_target.image.create_info.samples,
             tiling: vk::ImageTiling::OPTIMAL,
             initial_layout: vk::ImageLayout::UNDEFINED,
-            usage: vk::ImageUsageFlags::DEPTH_STENCIL_ATTACHMENT
-                | vk::ImageUsageFlags::TRANSIENT_ATTACHMENT,
+            usage: vk::ImageUsageFlags::DEPTH_STENCIL_ATTACHMENT |
+                vk::ImageUsageFlags::TRANSIENT_ATTACHMENT,
             sharing_mode: vk::SharingMode::EXCLUSIVE,
             ..Default::default()
         };
@@ -67,14 +67,14 @@ impl MSAARenderPass {
     ) -> Result<vk::Format, MSAAError> {
         for format in candidates {
             let format_properties = unsafe {
-                vk_dev.instance.ash.get_physical_device_format_properties(
-                    vk_dev.physical_device,
-                    *format,
-                )
+                vk_dev
+                    .instance
+                    .ash
+                    .get_physical_device_format_properties(vk_dev.physical_device, *format)
             };
-            if (format_properties.optimal_tiling_features
-                & vk::FormatFeatureFlags::DEPTH_STENCIL_ATTACHMENT)
-                == vk::FormatFeatureFlags::DEPTH_STENCIL_ATTACHMENT
+            if (format_properties.optimal_tiling_features &
+                vk::FormatFeatureFlags::DEPTH_STENCIL_ATTACHMENT) ==
+                vk::FormatFeatureFlags::DEPTH_STENCIL_ATTACHMENT
             {
                 return Ok(*format);
             }

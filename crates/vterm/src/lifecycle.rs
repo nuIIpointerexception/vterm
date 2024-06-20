@@ -3,39 +3,26 @@ use std::{
     os::raw::c_char,
 };
 
-use ash::{Entry, ext::debug_utils, khr::surface, vk, vk::Handle};
+use ash::{ext::debug_utils, khr::surface, vk, vk::Handle, Entry};
 use log::{debug, warn};
+use vui::{
+    errors::{InstanceError, WindowError},
+    vulkan::{instance::Instance, render_device::RenderDevice, window_surface::WindowSurface},
+};
 use winit::{
     raw_window_handle::{HasDisplayHandle, HasWindowHandle},
     window::Window,
 };
 
-use vui::{
-    errors::{InstanceError, WindowError},
-    vulkan::{
-        instance::Instance, render_device::RenderDevice,
-        window_surface::WindowSurface,
-    },
-};
-
 use crate::{
-    cli::Args, VULKAN_APP_NAME, VULKAN_APP_VERSION, VULKAN_ENGINE_NAME,
-    VULKAN_ENGINE_VERSION,
+    cli::Args, VULKAN_APP_NAME, VULKAN_APP_VERSION, VULKAN_ENGINE_NAME, VULKAN_ENGINE_VERSION,
 };
 
-fn create_instance(
-    window: &Window,
-    entry: &Entry,
-    args: &Args,
-) -> Result<Instance, InstanceError> {
+fn create_instance(window: &Window, entry: &Entry, args: &Args) -> Result<Instance, InstanceError> {
     // maybe sometime someone will optimize their stuff to this app...
     let app_name = CString::new(VULKAN_APP_NAME).unwrap();
-    let app_version = vk::make_api_version(
-        0,
-        VULKAN_APP_VERSION.0,
-        VULKAN_APP_VERSION.1,
-        VULKAN_APP_VERSION.2,
-    );
+    let app_version =
+        vk::make_api_version(0, VULKAN_APP_VERSION.0, VULKAN_APP_VERSION.1, VULKAN_APP_VERSION.2);
     let engine_name = CString::new(VULKAN_ENGINE_NAME).unwrap();
     let engine_version = vk::make_api_version(
         0,
@@ -50,14 +37,12 @@ fn create_instance(
         .engine_version(engine_version)
         .api_version(vk::API_VERSION_1_2);
 
-    let layers =
-        unsafe { entry.enumerate_instance_layer_properties() }.unwrap();
+    let layers = (unsafe { entry.enumerate_instance_layer_properties() }).unwrap();
     let mut layer_names = Vec::new();
 
     // TODO(nuii): disable in prod.
     let validation = if !args.disable_validation {
-        if let Some(layer) = find_layer(&layers, "VK_LAYER_KHRONOS_validation")
-        {
+        if let Some(layer) = find_layer(&layers, "VK_LAYER_KHRONOS_validation") {
             layer_names.push(layer);
             true
         } else {
@@ -70,11 +55,10 @@ fn create_instance(
     };
 
     // we only need a layer for debug atm.
-    let mut extension_names = ash_window::enumerate_required_extensions(
-        window.display_handle().unwrap().as_raw(),
-    )
-    .unwrap()
-    .to_vec();
+    let mut extension_names =
+        ash_window::enumerate_required_extensions(window.display_handle().unwrap().as_raw())
+            .unwrap()
+            .to_vec();
     extension_names.push(debug_utils::NAME.as_ptr());
 
     let mut instance_create_info = vk::InstanceCreateInfo::default()
@@ -85,23 +69,20 @@ fn create_instance(
     let validation_feature_enables;
     let mut validation_features;
     if validation {
-        validation_feature_enables =
-            [vk::ValidationFeatureEnableEXT::DEBUG_PRINTF];
+        validation_feature_enables = [vk::ValidationFeatureEnableEXT::DEBUG_PRINTF];
         validation_features = vk::ValidationFeaturesEXT::default()
             .enabled_validation_features(&validation_feature_enables);
-        instance_create_info =
-            instance_create_info.push_next(&mut validation_features);
+        instance_create_info = instance_create_info.push_next(&mut validation_features);
     }
 
-    let instance =
-        unsafe { entry.create_instance(&instance_create_info, None) }
-            .map_err(InstanceError::UnableToCreateInstance);
+    let instance = (unsafe { entry.create_instance(&instance_create_info, None) })
+        .map_err(InstanceError::UnableToCreateInstance);
 
     Instance::new(instance.unwrap(), entry)
 }
 
 fn vulkan_str(slice: &[c_char; 256]) -> &str {
-    unsafe { CStr::from_ptr(slice.as_ptr()) }.to_str().unwrap()
+    (unsafe { CStr::from_ptr(slice.as_ptr()) }).to_str().unwrap()
 }
 
 fn find_layer(layers: &[vk::LayerProperties], name: &str) -> Option<*const i8> {
@@ -113,12 +94,8 @@ fn find_layer(layers: &[vk::LayerProperties], name: &str) -> Option<*const i8> {
     None
 }
 
-fn create_surface(
-    window: &Window,
-    entry: &Entry,
-    instance: &Instance,
-) -> WindowSurface {
-    let handle = unsafe {
+fn create_surface(window: &Window, entry: &Entry, instance: &Instance) -> WindowSurface {
+    let handle = (unsafe {
         ash_window::create_surface(
             entry,
             &instance.ash,
@@ -126,7 +103,7 @@ fn create_surface(
             window.window_handle().unwrap().as_raw(),
             None,
         )
-    }
+    })
     .unwrap();
 
     WindowSurface::new(
@@ -143,14 +120,12 @@ pub fn create_vulkan_device(
     let instance = create_instance(window, &entry, args).unwrap();
     let surface = create_surface(window, &entry, &instance);
 
-    let device = RenderDevice::new(instance, surface)
-        .map_err(WindowError::UnexpectedRenderDeviceError)?;
+    let device =
+        RenderDevice::new(instance, surface).map_err(WindowError::UnexpectedRenderDeviceError)?;
 
     let (w, h): (u32, u32) = window.inner_size().into();
 
-    device
-        .rebuild_swapchain((w, h))
-        .expect("Unable to rebuild swapchain");
+    device.rebuild_swapchain((w, h)).expect("Unable to rebuild swapchain");
 
     Ok(device)
 }

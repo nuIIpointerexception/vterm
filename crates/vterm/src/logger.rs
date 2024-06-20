@@ -1,15 +1,18 @@
+use std::{panic::PanicInfo, sync::OnceLock, time::Instant};
+
 use log::{error, Level, LevelFilter, Metadata, Record};
-use std::panic::PanicInfo;
-use std::sync::OnceLock;
-use std::time::Instant;
+
+use crate::cli::Args;
 
 struct Logger {
     time_start: Instant,
+    log_enabled: bool,
+    log_level: LevelFilter,
 }
 
 impl log::Log for Logger {
     fn enabled(&self, metadata: &Metadata) -> bool {
-        metadata.target().starts_with(env!("CARGO_PKG_NAME"))
+        self.log_enabled && metadata.level() <= self.log_level
     }
 
     fn log(&self, record: &Record) {
@@ -32,11 +35,13 @@ impl log::Log for Logger {
 
 static LOGGER: OnceLock<Logger> = OnceLock::new();
 
-pub fn initialize_logger() {
+pub fn initialize_logger(args: &Args) {
     let time_start = Instant::now();
-    let logger = LOGGER.get_or_init(|| Logger { time_start });
+    let log_enabled = args.log; // Assuming `args.log` is a boolean indicating whether logging is enabled
+    let log_level = args.log_level;
+    let logger = LOGGER.get_or_init(|| Logger { time_start, log_enabled, log_level });
     log::set_logger(logger).unwrap();
-    log::set_max_level(LevelFilter::Trace);
+    log::set_max_level(log_level);
 }
 
 pub fn initialize_panic_hook() {
@@ -45,11 +50,8 @@ pub fn initialize_panic_hook() {
 
 fn panic_hook(info: &PanicInfo) {
     let full_message = info.to_string();
-    let message = if let Some((_, message)) = full_message.split_once('\n') {
-        message
-    } else {
-        "panic"
-    };
+    let message =
+        if let Some((_, message)) = full_message.split_once('\n') { message } else { "panic" };
     if let Some(location) = info.location() {
         error!("{message}, \x1B[1mlocation:\x1B[0m {location}");
     } else {

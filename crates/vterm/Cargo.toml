@@ -4,6 +4,7 @@ description = "A cross-platform, vulkan based terminal emulator"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
+readme.workspace = true
 license.workspace = true
 keywords.workspace = true
 repository.workspace = true
@@ -14,6 +15,8 @@ name = "vterm"
 path = "src/main.rs"
 
 [dependencies]
+dirs.workspace = true
+fs_extra.workspace = true
 vui.workspace = true
 anyhow.workspace = true
 winit.workspace = true
@@ -34,3 +37,9 @@ windows-sys = { version = "0.52", features = [
     "Win32_UI_Shell",
     "Win32_UI_WindowsAndMessaging",
 ] }
+
+[features]
+default = ["wayland", "x11"]
+x11 = ["winit/x11"]
+wayland = ["winit/wayland", "winit/wayland-dlopen"]
+nightly = []

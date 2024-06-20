@@ -1,14 +1,17 @@
 use ::anyhow::Result;
 
-use crate::{
-    builder_field, graphics::triangles::Frame, ui::{
-        color::Color, primitives::{Dimensions, Rect, Tile}, widgets::{Element, Widget}, Input, InternalState
-    }, vec2, Vec2, Vec4
-};
-
 pub use self::constraint::Constraint;
-
-use super::CompositeStyle;
+use crate::{
+    builder_field,
+    graphics::triangles::Frame,
+    ui::{
+        color::Color,
+        primitives::{Dimensions, Rect, Tile},
+        widgets::{Element, Widget},
+        Input, InternalState,
+    },
+    vec2, Vec2,
+};
 
 mod constraint;
 
@@ -33,10 +36,7 @@ impl<Message, Widget> Container<Message, Widget> {
 
             border: None,
 
-            background: Tile {
-                color: Color::new(1.0, 1.0, 1.0, 0.0),
-                ..Default::default()
-            },
+            background: Tile { color: Color::new(1.0, 1.0, 1.0, 0.0), ..Default::default() },
 
             max_width: Default::default(),
             max_height: Default::default(),
@@ -50,40 +50,22 @@ impl<Message, Widget> Container<Message, Widget> {
     builder_field!(max_height, Constraint);
 
     pub fn margin(self, margin: f32) -> Self {
-        Self {
-            margin: Rect::new(margin, margin, margin, margin),
-            ..self
-        }
+        Self { margin: Rect::new(margin, margin, margin, margin), ..self }
     }
 
     pub fn padding(self, padding: f32) -> Self {
-        Self {
-            padding: Rect::new(padding, padding, padding, padding),
-            ..self
-        }
+        Self { padding: Rect::new(padding, padding, padding, padding), ..self }
     }
 
     pub fn border(self, width: f32, color: Color, texture_index: i32) -> Self {
         Self {
-            border: Some(Tile {
-                outline_width: width,
-                color,
-                texture_index,
-                ..Default::default()
-            }),
+            border: Some(Tile { outline_width: width, color, texture_index, ..Default::default() }),
             ..self
         }
     }
 
     pub fn background(self, color: Color, texture_index: i32) -> Self {
-        Self {
-            background: Tile {
-                color,
-                texture_index,
-                ..self.background
-            },
-            ..self
-        }
+        Self { background: Tile { color, texture_index, ..self.background }, ..self }
     }
 
     fn get_border_width(&self) -> f32 {
@@ -104,11 +86,7 @@ where
         self.child.handle_event(internal_state, input, event)
     }
 
-    fn draw_frame(
-        &mut self,
-        internal_state: &mut InternalState,
-        frame: &mut Frame,
-    ) -> Result<()> {
+    fn draw_frame(&mut self, internal_state: &mut InternalState, frame: &mut Frame) -> Result<()> {
         self.background.fill(frame)?;
 
         if let Some(border) = &mut self.border {
@@ -128,22 +106,21 @@ where
             self.max_height.apply(max_size.height),
         );
         let border_width = self.get_border_width();
-        let horizonal_inset = self.padding.left()
-            + self.padding.right()
-            + self.margin.left()
-            + self.margin.right()
-            + border_width * 2.0;
-        let vertical_inset = self.padding.top()
-            + self.padding.bottom()
-            + self.margin.top()
-            + self.margin.bottom()
-            + border_width * 2.0;
+        let horizonal_inset = self.padding.left() +
+            self.padding.right() +
+            self.margin.left() +
+            self.margin.right() +
+            border_width * 2.0;
+        let vertical_inset = self.padding.top() +
+            self.padding.bottom() +
+            self.margin.top() +
+            self.margin.bottom() +
+            border_width * 2.0;
         let max_child_dimensions = Dimensions::new(
-            0f32.max(adjusted_max_size.width - horizonal_inset),
-            0f32.max(adjusted_max_size.height - vertical_inset),
+            (0f32).max(adjusted_max_size.width - horizonal_inset),
+            (0f32).max(adjusted_max_size.height - vertical_inset),
         );
-        let child_dimensions =
-            self.child.dimensions(internal_state, &max_child_dimensions);
+        let child_dimensions = self.child.dimensions(internal_state, &max_child_dimensions);
 
         let background_dimensions = Dimensions::new(
             child_dimensions.width + self.margin.left() + self.margin.right(),
@@ -166,30 +143,21 @@ where
         total_dimensions.min(&adjusted_max_size)
     }
 
-    fn set_top_left_position(
-        &mut self,
-        internal_state: &mut InternalState,
-        position: Vec2,
-    ) {
+    fn set_top_left_position(&mut self, internal_state: &mut InternalState, position: Vec2) {
         let border_width = self.get_border_width();
 
         if let Some(border) = &mut self.border {
-            let border_top_left = position
-                + self.padding.top_left
-                + vec2(0.5 * border_width, 0.5 * border_width);
+            let border_top_left =
+                position + self.padding.top_left + vec2(0.5 * border_width, 0.5 * border_width);
             border.model = border.model.set_top_left_position(border_top_left);
         }
 
         let background_top_left =
             position + self.padding.top_left + vec2(border_width, border_width);
-        self.background.model = self
-            .background
-            .model
-            .set_top_left_position(background_top_left);
+        self.background.model = self.background.model.set_top_left_position(background_top_left);
 
         let child_top_left = background_top_left + self.margin.top_left;
-        self.child
-            .set_top_left_position(internal_state, child_top_left);
+        self.child.set_top_left_position(internal_state, child_top_left);
     }
 }
 

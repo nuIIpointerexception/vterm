@@ -10,10 +10,7 @@ pub use crate::errors::{
     image::ImageError,
     instance::InstanceError,
     pipeline::PipelineError,
-    render_device::{
-        PhysicalDeviceError, QueueSelectionError, RenderDeviceError,
-        SwapchainError,
-    },
+    render_device::{PhysicalDeviceError, QueueSelectionError, RenderDeviceError, SwapchainError},
     render_pass::RenderPassError,
     sync::{FenceError, SemaphoreError},
     vulkan::VulkanError,

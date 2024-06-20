@@ -28,10 +28,7 @@ impl ShaderModule {
                 .create_shader_module(&create_info, None)
                 .map_err(PipelineError::UnableToCreateShaderModule)?
         };
-        Ok(Self {
-            raw: shader_module,
-            vk_dev,
-        })
+        Ok(Self { raw: shader_module, vk_dev })
     }
 
     pub fn stage_create_info(
@@ -50,9 +47,7 @@ impl ShaderModule {
 impl Drop for ShaderModule {
     fn drop(&mut self) {
         unsafe {
-            self.vk_dev
-                .logical_device
-                .destroy_shader_module(self.raw, None);
+            self.vk_dev.logical_device.destroy_shader_module(self.raw, None);
         }
     }
 }
@@ -72,9 +67,7 @@ impl ShaderModule {
             let (int_slice, rest) = input.split_at(U32_SIZE);
             input = rest;
             let word = u32::from_le_bytes(
-                int_slice
-                    .try_into()
-                    .map_err(PipelineError::InvalidBytesInShaderSPIRV)?,
+                int_slice.try_into().map_err(PipelineError::InvalidBytesInShaderSPIRV)?,
             );
             buffer.push(word);
         }

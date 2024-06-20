@@ -1,14 +1,10 @@
-use std::{
-    cell::RefMut,
-    sync::{Arc, Mutex},
-};
+use std::sync::{Arc, Mutex};
 
 use ::anyhow::Result;
 
 use crate::{
-    graphics::{triangles::Frame, Rectangle},
+    graphics::triangles::Frame,
     ui::{
-        color::{Color, Gradient},
         primitives::{Dimensions, Rect},
         widgets::{CompositeStyle, Widget},
         Input, InternalState,
@@ -23,9 +19,7 @@ pub struct Element<Message> {
 
 impl<Message> Element<Message> {
     pub fn new(widget: impl Widget<Message> + 'static) -> Self {
-        Self {
-            widget: Arc::new(Mutex::new(widget)),
-        }
+        Self { widget: Arc::new(Mutex::new(widget)) }
     }
 }
 
@@ -40,11 +34,7 @@ impl<Message: 'static> Widget<Message> for Element<Message> {
         widget.handle_event(internal_state, input, event)
     }
 
-    fn draw_frame(
-        &mut self,
-        internal_state: &mut InternalState,
-        frame: &mut Frame,
-    ) -> Result<()> {
+    fn draw_frame(&mut self, internal_state: &mut InternalState, frame: &mut Frame) -> Result<()> {
         let mut widget = self.widget.lock().unwrap();
         widget.draw_frame(internal_state, frame)
     }
@@ -58,16 +48,13 @@ impl<Message: 'static> Widget<Message> for Element<Message> {
         widget.dimensions(internal_state, max_size)
     }
 
-    fn set_top_left_position(
-        &mut self,
-        internal_state: &mut InternalState,
-        position: Vec2,
-    ) {
+    fn set_top_left_position(&mut self, internal_state: &mut InternalState, position: Vec2) {
         let mut widget = self.widget.lock().unwrap();
         widget.set_top_left_position(internal_state, position)
     }
 }
 
+#[allow(unused)]
 pub trait StylableWidget<Message>: Widget<Message> {
     fn bg(&self) -> CompositeStyle;
     fn top_left(&self) -> Vec2;

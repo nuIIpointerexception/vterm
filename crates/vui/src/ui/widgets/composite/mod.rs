@@ -1,18 +1,15 @@
 use ::anyhow::Result;
 
+pub use self::composed_message::{ComposedElement, ComposedMessage};
 use crate::{
     graphics::triangles::Frame,
     ui::{
-        Id,
-        Input,
-        InternalState, primitives::Dimensions, widgets::{Element, Widget},
+        primitives::Dimensions,
+        widgets::{Element, Widget},
+        Id, Input, InternalState,
     },
     Vec2,
 };
-
-pub use self::composed_message::{ComposedElement, ComposedMessage};
-
-use super::CompositeStyle;
 
 mod composed_message;
 
@@ -21,10 +18,7 @@ pub trait CompositeWidget<IMessage, EMessage> {
 
     fn id(&self) -> &Id;
 
-    fn view(
-        &mut self,
-        state: &Self::State,
-    ) -> Element<ComposedMessage<IMessage, EMessage>>;
+    fn view(&mut self, state: &Self::State) -> Element<ComposedMessage<IMessage, EMessage>>;
 
     fn update(&self, state: &mut Self::State, event: IMessage) -> Result<()>;
 }
@@ -42,10 +36,7 @@ where
     CW: CompositeWidget<IMessage, EMessage>,
 {
     pub fn new(composite: CW) -> Self {
-        Self {
-            composite,
-            current_view: None,
-        }
+        Self { composite, current_view: None }
     }
 }
 
@@ -62,19 +53,14 @@ where
         event: &winit::event::WindowEvent,
     ) -> Result<Option<EMessage>> {
         if self.current_view.is_none() {
-            let current_state =
-                internal_state.get_state::<CW::State>(self.composite.id());
+            let current_state = internal_state.get_state::<CW::State>(self.composite.id());
             self.current_view = Some(self.composite.view(current_state));
         }
-        let result = self.current_view.as_mut().unwrap().handle_event(
-            internal_state,
-            input,
-            event,
-        )?;
+        let result =
+            self.current_view.as_mut().unwrap().handle_event(internal_state, input, event)?;
         match result {
             Some(ComposedMessage::Internal(internal)) => {
-                let state = internal_state
-                    .get_state_mut::<CW::State>(self.composite.id());
+                let state = internal_state.get_state_mut::<CW::State>(self.composite.id());
                 self.composite.update(state, internal)?;
                 return Ok(None);
             }
@@ -87,15 +73,8 @@ where
         }
     }
 
-    fn draw_frame(
-        &mut self,
-        internal_state: &mut InternalState,
-        frame: &mut Frame,
-    ) -> Result<()> {
-        self.current_view
-            .as_mut()
-            .unwrap()
-            .draw_frame(internal_state, frame)
+    fn draw_frame(&mut self, internal_state: &mut InternalState, frame: &mut Frame) -> Result<()> {
+        self.current_view.as_mut().unwrap().draw_frame(internal_state, frame)
     }
 
     fn dimensions(
@@ -104,29 +83,17 @@ where
         max_size: &Dimensions,
     ) -> Dimensions {
         if self.current_view.is_none() {
-            let current_state =
-                internal_state.get_state::<CW::State>(self.composite.id());
+            let current_state = internal_state.get_state::<CW::State>(self.composite.id());
             self.current_view = Some(self.composite.view(current_state));
         }
-        self.current_view
-            .as_mut()
-            .unwrap()
-            .dimensions(internal_state, max_size)
+        self.current_view.as_mut().unwrap().dimensions(internal_state, max_size)
     }
 
-    fn set_top_left_position(
-        &mut self,
-        internal_state: &mut InternalState,
-        position: Vec2,
-    ) {
+    fn set_top_left_position(&mut self, internal_state: &mut InternalState, position: Vec2) {
         if self.current_view.is_none() {
-            let current_state =
-                internal_state.get_state::<CW::State>(self.composite.id());
+            let current_state = internal_state.get_state::<CW::State>(self.composite.id());
             self.current_view = Some(self.composite.view(current_state));
         }
-        self.current_view
-            .as_mut()
-            .unwrap()
-            .set_top_left_position(internal_state, position);
+        self.current_view.as_mut().unwrap().set_top_left_position(internal_state, position);
     }
 }

@@ -1,8 +1,13 @@
+use std::str::FromStr;
+
+use log::LevelFilter;
+
 pub struct Args {
     pub disable_validation: bool,
     pub window_protocol: Option<WindowProtocol>,
     pub command: Vec<String>,
-    pub working_dir: Option<String>,
+    pub log: bool,
+    pub log_level: LevelFilter,
 }
 
 pub enum WindowProtocol {
@@ -26,12 +31,24 @@ impl Args {
             _ => None,
         };
 
+        let log_level = args
+            .iter()
+            .find_map(|arg| {
+                if arg.starts_with("--log-level=") {
+                    let level_str = arg.split('=').nth(1)?;
+                    LevelFilter::from_str(level_str).ok()
+                } else {
+                    None
+                }
+            })
+            .unwrap_or(LevelFilter::Error);
+
         Args {
-            disable_validation: args
-                .contains(&"--disable-validation".to_string()),
+            disable_validation: args.contains(&"--disable-validation".to_string()),
             window_protocol,
-            command: args.into_iter().skip(1).collect(),
-            working_dir: None,
+            command: args.clone().into_iter().skip(1).collect(),
+            log: args.contains(&"--log".to_string()),
+            log_level,
         }
     }
 
@@ -40,6 +57,6 @@ impl Args {
             return None;
         }
 
-        Some((&self.command[0], &self.command[1..]))
+        Some((&self.command[0], &self.command[1 ..]))
     }
 }

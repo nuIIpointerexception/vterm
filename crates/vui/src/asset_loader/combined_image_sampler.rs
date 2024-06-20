@@ -14,9 +14,6 @@ impl CombinedImageSampler {
     }
 
     pub fn new(image_view: Arc<ImageView>, sampler: Arc<Sampler>) -> Self {
-        Self {
-            image_view,
-            sampler,
-        }
+        Self { image_view, sampler }
     }
 }

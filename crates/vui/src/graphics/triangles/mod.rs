@@ -2,18 +2,17 @@ use std::sync::Arc;
 
 use ::ash::vk;
 
+pub use self::frame::Frame;
+pub use crate::errors::ImmediateModeGraphicsError;
 use crate::{
     asset_loader::CombinedImageSampler,
     errors::VulkanError,
     msaa::MSAARenderPass,
     vulkan::{
-        allocator::MemoryAllocator, command_buffer::CommandBuffer,
-        pipeline::Pipeline, render_device::RenderDevice,
+        allocator::MemoryAllocator, command_buffer::CommandBuffer, pipeline::Pipeline,
+        render_device::RenderDevice,
     },
 };
-pub use crate::errors::ImmediateModeGraphicsError;
-
-pub use self::frame::Frame;
 
 mod frame;
 mod pipeline;
@@ -45,7 +44,7 @@ impl Triangles {
         )?;
         let frames = {
             let mut frames = vec![];
-            for _ in 0..vk_dev.swapchain_image_count() {
+            for _ in 0 .. vk_dev.swapchain_image_count() {
                 let frame = Frame::new(
                     vk_dev.clone(),
                     vk_alloc.clone(),
@@ -56,13 +55,7 @@ impl Triangles {
             }
             frames
         };
-        Ok(Self {
-            textures: textures.to_owned(),
-            pipeline,
-            frames,
-            vk_alloc,
-            vk_dev,
-        })
+        Ok(Self { textures: textures.to_owned(), pipeline, frames, vk_alloc, vk_dev })
     }
 
     pub fn rebuild_swapchain_resources(
@@ -77,7 +70,7 @@ impl Triangles {
         )?;
         self.frames = {
             let mut frames = vec![];
-            for _ in 0..self.vk_dev.swapchain_image_count() {
+            for _ in 0 .. self.vk_dev.swapchain_image_count() {
                 let frame = Frame::new(
                     self.vk_dev.clone(),
                     self.vk_alloc.clone(),
@@ -95,18 +88,17 @@ impl Triangles {
         &mut self,
         swapchain_image_index: usize,
     ) -> Result<Frame, ImmediateModeGraphicsError> {
-        let mut frame = self.frames[swapchain_image_index].take().ok_or(
-            ImmediateModeGraphicsError::FrameResourcesUnavailable(
-                swapchain_image_index,
-            ),
-        )?;
+        let mut frame = self.frames[swapchain_image_index]
+            .take()
+            .ok_or(ImmediateModeGraphicsError::FrameResourcesUnavailable(swapchain_image_index))?;
         frame.clear();
         Ok(frame)
     }
 
     /// # Safety
     ///
-    /// The caller must ensure that the command buffer is in the recording state.
+    /// The caller must ensure that the command buffer is in the recording
+    /// state.
     pub unsafe fn complete_frame(
         &mut self,
         cmd: &CommandBuffer,

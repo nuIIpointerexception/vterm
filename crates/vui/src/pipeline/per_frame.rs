@@ -27,8 +27,7 @@ impl PerFrame {
         let release_semaphore = Semaphore::new(vk_dev.clone())?;
         let queue_submit_fence = Fence::new(vk_dev.clone())?;
 
-        let command_pool =
-            Arc::new(CommandPool::new_transient_graphics_pool(vk_dev.clone())?);
+        let command_pool = Arc::new(CommandPool::new_transient_graphics_pool(vk_dev.clone())?);
         let command_buffer = CommandBuffer::new_primary(command_pool.clone())?;
 
         Ok(Self {

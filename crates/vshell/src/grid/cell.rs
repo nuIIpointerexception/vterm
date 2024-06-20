@@ -11,13 +11,7 @@ pub struct Style {
 
 impl Default for Style {
     fn default() -> Self {
-        Self {
-            fg: Color::WHITE,
-            bg: Color::BLACK,
-            bold: false,
-            underline: false,
-            italics: false,
-        }
+        Self { fg: Color::WHITE, bg: Color::BLACK, bold: false, underline: false, italics: false }
     }
 }
 
@@ -29,10 +23,7 @@ pub struct Cell {
 
 impl Cell {
     pub fn new() -> Self {
-        Self {
-            c: None,
-            style: Default::default(),
-        }
+        Self { c: None, style: Default::default() }
     }
 }
 

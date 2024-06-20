@@ -56,10 +56,10 @@ impl From<(f32, f32, f32, f32)> for Color {
 /// Convert a hexadecimal color value to a Color struct.
 impl From<u32> for Color {
     fn from(hex: u32) -> Self {
-        let r = ((hex >> 24) & 0xFF) as f32 / 255.0;
-        let g = ((hex >> 16) & 0xFF) as f32 / 255.0;
-        let b = ((hex >> 8) & 0xFF) as f32 / 255.0;
-        let a = (hex & 0xFF) as f32 / 255.0;
+        let r = (((hex >> 24) & 0xff) as f32) / 255.0;
+        let g = (((hex >> 16) & 0xff) as f32) / 255.0;
+        let b = (((hex >> 8) & 0xff) as f32) / 255.0;
+        let a = ((hex & 0xff) as f32) / 255.0;
         Color { r, g, b, a }
     }
 }
@@ -118,7 +118,7 @@ mod tests {
 
     #[test]
     fn test_color_from_u32() {
-        let color: Color = 0xFF00FF00.into();
+        let color: Color = (0xff00ff00).into();
         assert_eq!(color, Color::new(1.0, 0.0, 1.0, 0.0));
     }
 
@@ -126,7 +126,7 @@ mod tests {
     fn test_color_into_u32() {
         let color = Color::new(1.0, 0.0, 1.0, 0.0);
         let hex: u32 = color.into();
-        assert_eq!(hex, 0xFF00FF00);
+        assert_eq!(hex, 0xff00ff00);
     }
 
     #[test]

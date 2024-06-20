@@ -1,0 +1,39 @@
+{
+    "scripts": {
+        "prepare": "husky init",
+        "format": "cargo fmt --all && prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md,html,toml,sh}'",
+        "lint": "cargo clippy --fix --allow-dirty",
+        "test": "cargo test --",
+        "dev": "cargo run --",
+        "trace": "cargo run -- --log --log-level=Trace",
+        "warn": "cargo run -- --log --log-level=Warn",
+        "info": "cargo run -- --log --log-level=Info",
+        "build": "make build",
+        "release": "make release",
+        "license": "cargo deny check"
+    },
+    "devDependencies": {
+        "husky": "^9.0.11",
+        "lint-staged": "^15.2.7",
+        "prettier": "^3.3.2",
+        "prettier-plugin-rust": "^0.1.9",
+        "prettier-plugin-sh": "^0.14.0",
+        "prettier-plugin-toml": "^2.0.1"
+    },
+    "lint-staged": {
+        "*.rs": [
+            "cargo fmt --all",
+            "cargo clippy --fix --allow-dirty",
+            "cargo test --",
+            "cargo deny check"
+        ],
+        "*.{js,jsx,ts,tsx,json,css,scss,md,html,toml,sh}": [
+            "prettier --write"
+        ]
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "lint-staged"
+        }
+    }
+}

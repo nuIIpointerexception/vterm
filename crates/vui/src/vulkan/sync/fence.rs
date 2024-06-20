@@ -13,10 +13,8 @@ pub struct Fence {
 impl Fence {
     pub fn new(vk_dev: Arc<RenderDevice>) -> Result<Self, FenceError> {
         let raw = {
-            let create_info = vk::FenceCreateInfo {
-                flags: vk::FenceCreateFlags::SIGNALED,
-                ..Default::default()
-            };
+            let create_info =
+                vk::FenceCreateInfo { flags: vk::FenceCreateFlags::SIGNALED, ..Default::default() };
             unsafe {
                 vk_dev
                     .logical_device

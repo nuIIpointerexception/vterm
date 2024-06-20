@@ -1,7 +1,7 @@
 Release Notes:
 
-- Added/Fixed/Improved ... ([#<public_issue_number_if_exists>](https://github.com/
-nuiipointerexception/vterm/issues/<public_issue_number_if_exists>)).
+-   Added/Fixed/Improved ... ([#<public_issue_number_if_exists>](https://github.com/
+    nuiipointerexception/vterm/issues/<public_issue_number_if_exists>)).
 
 Optionally, include screenshots / media showcasing your addition that can be included in the release notes.
 
@@ -9,4 +9,4 @@ Optionally, include screenshots / media showcasing your addition that can be inc
 
 Release Notes:
 
-- N/A
+-   N/A

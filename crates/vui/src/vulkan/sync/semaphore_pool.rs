@@ -12,10 +12,7 @@ pub struct SemaphorePool {
 
 impl SemaphorePool {
     pub fn new(vk_dev: Arc<RenderDevice>) -> Self {
-        Self {
-            recycled_semaphores: vec![],
-            vk_dev,
-        }
+        Self { recycled_semaphores: vec![], vk_dev }
     }
 
     pub fn get_semaphore(&mut self) -> Result<Semaphore, SemaphoreError> {

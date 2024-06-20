@@ -12,7 +12,6 @@ use crate::{
 pub struct Image {
     sprite: Sprite,
     bounds: Rect,
-    style: CompositeStyle,
 }
 
 impl Image {
@@ -28,11 +27,7 @@ impl Image {
         };
         let bounds = Rect::new(0.0, 0.0, width, height);
 
-        Self {
-            sprite,
-            bounds,
-            style: CompositeStyle::default(),
-        }
+        Self { sprite, bounds }
     }
 
     pub fn size(mut self, width: f32, height: f32) -> Self {
@@ -71,22 +66,13 @@ impl<Message: 'static> Widget<Message> for Image {
         self.bounds.dimensions().min(max_size)
     }
 
-    fn set_top_left_position(
-        &mut self,
-        _internal_state: &mut InternalState,
-        position: Vec2,
-    ) {
+    fn set_top_left_position(&mut self, _internal_state: &mut InternalState, position: Vec2) {
         let center = Vec2::new(
             position.x + self.bounds.width() / 2.0,
             position.y + self.bounds.height() / 2.0,
         );
         self.sprite.position = center;
-        self.bounds = Rect::new(
-            position.x,
-            position.y,
-            self.bounds.width(),
-            self.bounds.height(),
-        );
+        self.bounds = Rect::new(position.x, position.y, self.bounds.width(), self.bounds.height());
     }
 }
 

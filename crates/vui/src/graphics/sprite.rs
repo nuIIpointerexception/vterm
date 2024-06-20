@@ -36,10 +36,30 @@ impl Sprite {
         let texture_index = self.texture_index;
         let color = Color::new(1.0, 1.0, 1.0, 1.0);
 
-        vertices.push_vertex(Vertex::new(vec3(self.position.x - hw, self.position.y - hh, depth), color, vec2(0.0, 0.0), texture_index))?;
-        vertices.push_vertex(Vertex::new(vec3(self.position.x + hw, self.position.y - hh, depth), color, vec2(1.0, 0.0), texture_index))?;
-        vertices.push_vertex(Vertex::new(vec3(self.position.x + hw, self.position.y + hh, depth), color, vec2(1.0, 1.0), texture_index))?;
-        vertices.push_vertex(Vertex::new(vec3(self.position.x - hw, self.position.y + hh, depth), color, vec2(0.0, 1.0), texture_index))?;
+        vertices.push_vertex(Vertex::new(
+            vec3(self.position.x - hw, self.position.y - hh, depth),
+            color,
+            vec2(0.0, 0.0),
+            texture_index,
+        ))?;
+        vertices.push_vertex(Vertex::new(
+            vec3(self.position.x + hw, self.position.y - hh, depth),
+            color,
+            vec2(1.0, 0.0),
+            texture_index,
+        ))?;
+        vertices.push_vertex(Vertex::new(
+            vec3(self.position.x + hw, self.position.y + hh, depth),
+            color,
+            vec2(1.0, 1.0),
+            texture_index,
+        ))?;
+        vertices.push_vertex(Vertex::new(
+            vec3(self.position.x - hw, self.position.y + hh, depth),
+            color,
+            vec2(0.0, 1.0),
+            texture_index,
+        ))?;
 
         vertices.push_indices(&[0, 1, 2, 0, 2, 3])?;
 

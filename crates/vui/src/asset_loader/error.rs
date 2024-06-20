@@ -15,4 +15,7 @@ pub enum AssetLoaderError {
 
     #[error("Unable to decode the texture file into rgba.")]
     UnableToDecodeImage(#[from] ImageError),
+
+    #[error("Image not found")]
+    ImageNotFound,
 }

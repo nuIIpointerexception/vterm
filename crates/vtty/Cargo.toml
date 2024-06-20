@@ -4,6 +4,7 @@ description = "a pty library for vterm."
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
+readme.workspace = true
 license.workspace = true
 keywords.workspace = true
 repository.workspace = true

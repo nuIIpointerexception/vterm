@@ -27,11 +27,7 @@ impl ImageView {
                 .create_image_view(create_info, None)
                 .map_err(ImageError::UnableToCreateView)?
         };
-        Ok(Self {
-            raw,
-            vk_dev: image.vk_dev.clone(),
-            image,
-        })
+        Ok(Self { raw, vk_dev: image.vk_dev.clone(), image })
     }
 
     pub fn new_2d(
@@ -60,9 +56,7 @@ impl ImageView {
 impl Drop for ImageView {
     fn drop(&mut self) {
         unsafe {
-            self.vk_dev
-                .logical_device
-                .destroy_image_view(self.raw, None);
+            self.vk_dev.logical_device.destroy_image_view(self.raw, None);
         }
     }
 }

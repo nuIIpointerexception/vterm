@@ -1,0 +1,31 @@
+[advisories]
+db-path = "~/.cargo/advisory-db"
+db-urls = ["https://github.com/rustsec/advisory-db"]
+yanked = "warn"
+version = 2
+
+[licenses]
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "CC0-1.0",
+    "ISC",
+    "MPL-2.0",
+    "Unicode-DFS-2016",
+    "Apache-2.0 WITH LLVM-exception",
+]
+
+[bans]
+multiple-versions = "deny"
+wildcards = "allow"
+highlight = "all"
+skip-tree = [{ name = "windows-sys" }, { name = "bitflags" }]
+skip = [
+    # duplicates
+    { name = "toml_edit" },
+    { name = "syn" },
+    { name = "redox_syscall" },
+    { name = "libredox" },
+]

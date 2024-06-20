@@ -27,13 +27,7 @@ impl InputState {
             Key::Named(NamedKey::Escape) => Some("\x1b"),
             _ => {
                 if mods.control_key() {
-                    let n = input
-                        .logical_key
-                        .to_text()
-                        .unwrap()
-                        .chars()
-                        .next()
-                        .unwrap();
+                    let n = input.logical_key.to_text().unwrap().chars().next().unwrap();
                     let mut m = n as u8;
                     m &= 0b1001_1111;
                     let _ = self.rtx.send(vec![m]);
@@ -45,6 +39,6 @@ impl InputState {
         };
         if let Some(text) = text {
             let _ = self.rtx.send(text.into());
-        };
+        }
     }
 }

@@ -36,10 +36,7 @@ impl RenderDevice {
     where
         Func: FnOnce(&Swapchain) -> ReturnType,
     {
-        let swapchain = self
-            .swapchain
-            .lock()
-            .expect("Unable to lock the swapchain mutex");
+        let swapchain = self.swapchain.lock().expect("Unable to lock the swapchain mutex");
         let borrow = swapchain.as_ref().expect("The swapchain does not exist");
         func(borrow)
     }
@@ -55,12 +52,7 @@ impl RenderDevice {
     ) -> Result<usize, SwapchainError> {
         self.with_swapchain(|swapchain| {
             let result = unsafe {
-                swapchain.loader.acquire_next_image(
-                    swapchain.khr,
-                    u64::MAX,
-                    semaphore,
-                    fence,
-                )
+                swapchain.loader.acquire_next_image(swapchain.khr, u64::MAX, semaphore, fence)
             };
             if let Err(vk::Result::ERROR_OUT_OF_DATE_KHR) = result {
                 return Err(SwapchainError::NeedsRebuild);
@@ -73,14 +65,9 @@ impl RenderDevice {
         })
     }
 
-    pub fn rebuild_swapchain(
-        &self,
-        framebuffer_size: (u32, u32),
-    ) -> Result<(), SwapchainError> {
-        let mut current_swapchain = self
-            .swapchain
-            .lock()
-            .expect("Unable to lock the swapchain mutex");
+    pub fn rebuild_swapchain(&self, framebuffer_size: (u32, u32)) -> Result<(), SwapchainError> {
+        let mut current_swapchain =
+            self.swapchain.lock().expect("Unable to lock the swapchain mutex");
 
         let format = self.choose_surface_format();
         let present_mode = self.choose_present_mode();
@@ -109,8 +96,7 @@ impl RenderDevice {
             ..Default::default()
         };
 
-        let indices =
-            &[self.graphics_queue.family_id, self.present_queue.family_id];
+        let indices = &[self.graphics_queue.family_id, self.present_queue.family_id];
 
         if self.present_queue.is_same(&self.graphics_queue) {
             create_info.image_sharing_mode = vk::SharingMode::EXCLUSIVE;
@@ -118,10 +104,9 @@ impl RenderDevice {
             create_info.image_sharing_mode = vk::SharingMode::CONCURRENT;
             create_info.p_queue_family_indices = indices.as_ptr();
             create_info.queue_family_index_count = indices.len() as u32;
-        };
+        }
 
-        let loader =
-            khr::swapchain::Device::new(&self.instance.ash, &self.logical_device);
+        let loader = khr::swapchain::Device::new(&self.instance.ash, &self.logical_device);
         let swapchain = unsafe {
             loader
                 .create_swapchain(&create_info, None)
@@ -134,8 +119,7 @@ impl RenderDevice {
                 .map_err(SwapchainError::UnableToGetSwapchainImages)?
         };
 
-        let image_views =
-            self.create_image_views(format.format, &swapchain_images)?;
+        let image_views = self.create_image_views(format.format, &swapchain_images)?;
 
         let previous_swapchain = current_swapchain.replace(Swapchain {
             loader,
@@ -147,7 +131,9 @@ impl RenderDevice {
         });
 
         if let Some(old_swapchain) = previous_swapchain {
-            unsafe { self.destroy_swapchain(old_swapchain)? };
+            unsafe {
+                self.destroy_swapchain(old_swapchain)?;
+            }
         }
 
         Ok(())

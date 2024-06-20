@@ -4,3 +4,9 @@ profile-rustflags = true
 
 [profile.release]
 rustflags = ["-Ccodegen-units=1", "-Zlocation-detail=none"]
+
+[target.aarch64-apple-darwin]
+rustflags = [
+    # optimize for m1, will work on later versions too...
+    "-Ctarget-cpu=apple-m1",
+]

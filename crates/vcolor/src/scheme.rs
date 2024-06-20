@@ -2,6 +2,7 @@
 /// This is subject to change, but for now i need to store the colors somewhere i guess.
 
 // primar
+
 pub const PRIMARY_BACKGROUND: &str = "#262427";
 pub const PRIMARY_FOREGROUND: &str = "#fcfcfa";
 

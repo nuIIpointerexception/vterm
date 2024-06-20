@@ -3,17 +3,15 @@ use ::anyhow::Result;
 use crate::{
     gen_id,
     ui::{
-        Font,
-        Id,
         id_hash,
-        primitives::{Justify, SpaceBetween}, widgets::{
-            Col, ComposedMessage, Composite, CompositeWidget, Container,
-            Element, Label, Row, WithContainer,
+        primitives::{Justify, SpaceBetween},
+        widgets::{
+            Col, ComposedMessage, Composite, CompositeWidget, Container, Element, Label, Row,
+            WithContainer,
         },
+        Font, Id,
     },
 };
-
-use super::CompositeStyle;
 
 #[derive(Default, Debug, Copy, Clone, Eq, PartialEq)]
 pub enum WindowState {
@@ -41,19 +39,11 @@ where
 {
     pub fn new(font: Font, title: impl Into<String>) -> Self {
         let owned_title = title.into();
-        Self {
-            id: gen_id!(&owned_title),
-            font,
-            title: owned_title,
-            contents: None,
-        }
+        Self { id: gen_id!(&owned_title), font, title: owned_title, contents: None }
     }
 
     pub fn contents(self, contents: impl Into<Element<Message>>) -> Self {
-        Self {
-            contents: Some(contents.into()),
-            ..self
-        }
+        Self { contents: Some(contents.into()), ..self }
     }
 }
 
@@ -67,10 +57,7 @@ where
         &self.id
     }
 
-    fn view(
-        &mut self,
-        state: &Self::State,
-    ) -> Element<ComposedMessage<WindowEvent, Message>> {
+    fn view(&mut self, state: &Self::State) -> Element<ComposedMessage<WindowEvent, Message>> {
         match state {
             WindowState::Hidden => {
                 let top_bar = Row::new()
@@ -86,19 +73,12 @@ where
 
                 let contents: Element<Message> = self.contents.take().unwrap();
 
-                Col::new()
-                    .child(top_bar)
-                    .child(contents)
-                    .into()
+                Col::new().child(top_bar).child(contents).into()
             }
         }
     }
 
-    fn update(
-        &self,
-        state: &mut Self::State,
-        event: WindowEvent,
-    ) -> Result<()> {
+    fn update(&self, state: &mut Self::State, event: WindowEvent) -> Result<()> {
         match event {
             WindowEvent::HideWindow => {
                 *state = WindowState::Hidden;
@@ -130,8 +110,7 @@ where
     }
 }
 
-impl<Message> Into<Element<Message>>
-    for Composite<WindowEvent, Message, Window<Message>>
+impl<Message> Into<Element<Message>> for Composite<WindowEvent, Message, Window<Message>>
 where
     Message: 'static + std::fmt::Debug + Copy + Clone,
 {

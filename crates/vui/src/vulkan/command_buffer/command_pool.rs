@@ -38,11 +38,7 @@ impl CommandPool {
     pub fn new_transient_graphics_pool(
         vk_dev: Arc<RenderDevice>,
     ) -> Result<Self, CommandBufferError> {
-        Self::new(
-            vk_dev.clone(),
-            &vk_dev.graphics_queue,
-            vk::CommandPoolCreateFlags::TRANSIENT,
-        )
+        Self::new(vk_dev.clone(), &vk_dev.graphics_queue, vk::CommandPoolCreateFlags::TRANSIENT)
     }
 
     pub unsafe fn allocate_command_buffers(
@@ -72,19 +68,11 @@ impl CommandPool {
         Ok(buffers[0])
     }
 
-    pub unsafe fn free_command_buffers(
-        &self,
-        command_buffers: &[vk::CommandBuffer],
-    ) {
-        self.vk_dev
-            .logical_device
-            .free_command_buffers(self.raw, command_buffers);
+    pub unsafe fn free_command_buffers(&self, command_buffers: &[vk::CommandBuffer]) {
+        self.vk_dev.logical_device.free_command_buffers(self.raw, command_buffers);
     }
 
-    pub unsafe fn free_command_buffer(
-        &self,
-        command_buffer: vk::CommandBuffer,
-    ) {
+    pub unsafe fn free_command_buffer(&self, command_buffer: vk::CommandBuffer) {
         self.free_command_buffers(&[command_buffer]);
     }
 
@@ -92,10 +80,7 @@ impl CommandPool {
         unsafe {
             self.vk_dev
                 .logical_device
-                .reset_command_pool(
-                    self.raw,
-                    vk::CommandPoolResetFlags::empty(),
-                )
+                .reset_command_pool(self.raw, vk::CommandPoolResetFlags::empty())
                 .map_err(CommandBufferError::UnableToResetPool)?;
         }
         Ok(())
@@ -104,10 +89,6 @@ impl CommandPool {
 
 impl Drop for CommandPool {
     fn drop(&mut self) {
-        unsafe {
-            self.vk_dev
-                .logical_device
-                .destroy_command_pool(self.raw, None)
-        }
+        unsafe { self.vk_dev.logical_device.destroy_command_pool(self.raw, None) }
     }
 }

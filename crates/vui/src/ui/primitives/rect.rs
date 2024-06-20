@@ -8,21 +8,13 @@ pub struct Rect {
 
 impl Rect {
     pub fn new(top: f32, left: f32, bottom: f32, right: f32) -> Self {
-        Self {
-            top_left: vec2(left, top),
-            bottom_right: vec2(right, bottom),
-        }
+        Self { top_left: vec2(left, top), bottom_right: vec2(right, bottom) }
     }
 
     pub fn centered_at(x: f32, y: f32, width: f32, height: f32) -> Self {
         let half_height = 0.5 * height;
         let half_width = 0.5 * width;
-        Self::new(
-            y - half_height,
-            x - half_width,
-            y + half_height,
-            x + half_width,
-        )
+        Self::new(y - half_height, x - half_width, y + half_height, x + half_width)
     }
 
     #[inline]
@@ -58,10 +50,7 @@ impl Rect {
     }
 
     pub fn translate(&self, offset: Vec2) -> Self {
-        Self {
-            top_left: self.top_left + offset,
-            bottom_right: self.bottom_right + offset,
-        }
+        Self { top_left: self.top_left + offset, bottom_right: self.bottom_right + offset }
     }
 
     pub fn set_top_left_position(&self, position: Vec2) -> Self {
@@ -81,17 +70,10 @@ impl Rect {
 
     pub fn expand(&self, other: Rect) -> Self {
         Self {
-            top_left: vec2(
-                self.left().min(other.left()),
-                self.top().min(other.top()),
-            ),
-            bottom_right: vec2(
-                self.right().max(other.right()),
-                self.bottom().max(other.bottom()),
-            ),
+            top_left: vec2(self.left().min(other.left()), self.top().min(other.top())),
+            bottom_right: vec2(self.right().max(other.right()), self.bottom().max(other.bottom())),
         }
     }
-
 }
 
 #[cfg(test)]

@@ -35,13 +35,8 @@ impl ComposableAllocator for PassthroughAllocator {
         })
     }
 
-    unsafe fn free(
-        &mut self,
-        allocation: &Allocation,
-    ) -> Result<(), AllocatorError> {
-        self.vk_dev
-            .logical_device
-            .free_memory(allocation.memory, None);
+    unsafe fn free(&mut self, allocation: &Allocation) -> Result<(), AllocatorError> {
+        self.vk_dev.logical_device.free_memory(allocation.memory, None);
         Ok(())
     }
 }
